@@ -1,6 +1,6 @@
-import requests
+import requests # type: ignore
 
-OSRM_BASE_URL = "http://router.project-osrm.org/route/v1/driving"
+OSRM_BASE_URL = "https://www.openstreetmap.org/#map=6/0.17/37.90"
 
 def get_route(start, end):
     """
