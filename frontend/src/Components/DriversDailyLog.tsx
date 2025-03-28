@@ -1,94 +1,96 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import axios from "axios";
-
-const logSchema = z.object({
-  driverName: z.string().min(1, "Driver name is required"),
-  date: z.string().min(1, "Date is required"),
-  totalMiles: z.number().min(0, "Total miles must be a positive number"),
-  logEntries: z.array(
-    z.object({
-      time: z.string(),
-      status: z.enum(["Off Duty", "Sleeper", "Driving", "On Duty"]),
-    })
-  ),
-  remarks: z.string().optional(),
-});
-
-type LogFormType = z.infer<typeof logSchema>;
+import { useState, useEffect } from "react";
+import { Input } from "../Components/ui/input";
+import { Button } from "../Components/ui/button";
 
 const DriversDailyLog = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LogFormType>({ resolver: zodResolver(logSchema) });
+  const [logData, setLogData] = useState({
+    from: "",
+    carrier: "",
+    homeTerminal: "",
+    mileageToday: "",
+    totalMileage: "",
+    truckTrailer: "",
+    remarks: "",
+    shippingDocs: "",
+    recap: "",
+  });
 
-  const onSubmit = async (data: LogFormType) => {
-    try {
-      await axios.post("/api/logs", data);
-      alert("Log submitted successfully");
-    } catch (error) {
-      console.error(error);
-      alert("Error submitting log");
-    }
+  useEffect(() => {
+    const savedLog = localStorage.getItem("driversDailyLog");
+    if (savedLog) setLogData(JSON.parse(savedLog));
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("driversDailyLog", JSON.stringify(logData));
+  }, [logData]);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setLogData({ ...logData, [e.target.name]: e.target.value });
   };
+
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-lg">
-      <h2 className="text-2xl font-bold mb-4">Driver's Daily Log</h2>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium">Driver Name</label>
-          <input
-            type="text"
-            {...register("driverName")}
-            className="w-full p-2 border rounded"
-          />
-          {errors.driverName && (
-            <p className="text-red-500 text-sm">{errors.driverName.message}</p>
-          )}
-        </div>
+    <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg">
+      <h1 className="text-2xl font-bold mb-4">Driver's Daily Log</h1>
 
-        <div>
-          <label className="block text-sm font-medium">Date</label>
-          <input
-            type="date"
-            {...register("date")}
-            className="w-full p-2 border rounded"
-          />
-          {errors.date && (
-            <p className="text-red-500 text-sm">{errors.date.message}</p>
-          )}
-        </div>
+      <div className="grid grid-cols-2 gap-4">
+        <Input
+          name="from"
+          value={logData.from}
+          onChange={handleChange}
+          placeholder="From"
+        />
+        <Input
+          name="carrier"
+          value={logData.carrier}
+          onChange={handleChange}
+          placeholder="Name of Carrier"
+        />
+        <Input
+          name="homeTerminal"
+          value={logData.homeTerminal}
+          onChange={handleChange}
+          placeholder="Home Terminal Address"
+        />
+        <Input
+          name="mileageToday"
+          value={logData.mileageToday}
+          onChange={handleChange}
+          placeholder="Total Mileage Today"
+        />
+        <Input
+          name="totalMileage"
+          value={logData.totalMileage}
+          onChange={handleChange}
+          placeholder="Total Miles Driven"
+        />
+        <Input
+          name="truckTrailer"
+          value={logData.truckTrailer}
+          onChange={handleChange}
+          placeholder="Truck/Trailer Number & License"
+        />
+      </div>
 
-        <div>
-          <label className="block text-sm font-medium">Total Miles</label>
-          <input
-            type="number"
-            {...register("totalMiles", { valueAsNumber: true })}
-            className="w-full p-2 border rounded"
-          />
-          {errors.totalMiles && (
-            <p className="text-red-500 text-sm">{errors.totalMiles.message}</p>
-          )}
-        </div>
+      <textarea
+        name="remarks"
+        value={logData.remarks}
+        onChange={handleChange}
+        placeholder="Remarks"
+        className="w-full mt-4 p-2 border rounded-md"
+      />
+      <textarea
+        name="shippingDocs"
+        value={logData.shippingDocs}
+        onChange={handleChange}
+        placeholder="Shipping Documents"
+        className="w-full mt-4 p-2 border rounded-md"
+      />
 
-        <div>
-          <label className="block text-sm font-medium">Remarks</label>
-          <textarea
-            {...register("remarks")}
-            className="w-full p-2 border rounded"
-          ></textarea>
-        </div>
-
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded"
-        >
-          Submit
-        </button>
-      </form>
+      <div className="flex justify-end mt-4">
+        <Button onClick={() => console.log(logData)}>Save & Submit</Button>
+      </div>
     </div>
   );
 };
