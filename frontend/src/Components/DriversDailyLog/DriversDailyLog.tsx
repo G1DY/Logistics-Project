@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Input } from "../Components/ui/input";
-import { Button } from "../Components/ui/button";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
 
 const DriversDailyLog = () => {
   const [logData, setLogData] = useState({

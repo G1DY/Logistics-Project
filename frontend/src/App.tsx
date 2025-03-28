@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./Components/Layout";
-import DriversDailyLog from "./Components/DriversDailyLog";
+import DriversDailyLog from "./Components/DriversDailyLog/DriversDailyLog";
 import RouteForm from "./Components/RouteForm";
 
 const App = () => {
