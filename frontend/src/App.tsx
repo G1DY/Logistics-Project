@@ -1,12 +1,19 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Layout from "./Components/Layout";
 import DriversDailyLog from "./Components/DriversDailyLog";
 import RouteForm from "./Components/RouteForm";
 
 const App = () => {
   return (
-    <div className="bg-amber-500 text-3xl text-green-400 items-center justify-center flex min-h-screen">
-      <RouteForm />
-      <DriversDailyLog />
-    </div>
+    <Router>
+      <Layout>
+        <Routes>
+          <Route path="/DriversDailyLog" element={<DriversDailyLog />} />
+          <Route path="/log-form" element={<RouteForm />} />
+        </Routes>
+      </Layout>
+    </Router>
   );
 };
+
 export default App;
