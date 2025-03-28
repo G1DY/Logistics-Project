@@ -8,7 +8,7 @@ const Navbar = () => {
         <Link to="/DriversDailyLog" className="hover:underline">
           Home
         </Link>
-        <Link to="/log-form" className="hover:underline">
+        <Link to="/TripDetailsForm" className="hover:underline">
           Log Form
         </Link>
       </div>
