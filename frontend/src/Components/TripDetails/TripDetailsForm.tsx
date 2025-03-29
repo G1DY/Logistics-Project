@@ -17,14 +17,53 @@ const TripDetailsForm = () => {
   const [trip, setTrip] = useState<{ pickup: string; dropoff: string } | null>(
     null
   );
+  const [loadingLocation, setLoadingLocation] = useState(false);
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<TripFormData>({
     resolver: zodResolver(tripSchema),
   });
+
+  // Function to fetch user's current location
+  const fetchCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    setLoadingLocation(true);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        console.log("Coordinates:", latitude, longitude);
+
+        // Reverse Geocode using OpenStreetMap Nominatim API
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+          );
+          const data = await response.json();
+          const address = data.display_name || "Unknown location";
+          setValue("pickupLocation", address); // Autofill the input
+        } catch (error) {
+          console.error("Error fetching location:", error);
+          alert("Failed to fetch location. Please try again.");
+        } finally {
+          setLoadingLocation(false);
+        }
+      },
+      (error) => {
+        console.error("Error getting location:", error);
+        alert("Could not retrieve location.");
+        setLoadingLocation(false);
+      }
+    );
+  };
 
   const onSubmit = (data: TripFormData) => {
     setTrip({ pickup: data.pickupLocation, dropoff: data.dropoffLocation });
@@ -38,12 +77,22 @@ const TripDetailsForm = () => {
       >
         <h2 className="text-xl font-semibold text-center">Plan Your Trip</h2>
 
+        {/* Pickup Location with Current Location Button */}
         <div>
           <label className="block text-sm font-medium">Pickup Location</label>
-          <Input
-            {...register("pickupLocation")}
-            placeholder="Enter pickup location"
-          />
+          <div className="flex space-x-2">
+            <Input
+              {...register("pickupLocation")}
+              placeholder="Enter pickup location"
+            />
+            <Button
+              type="button"
+              onClick={fetchCurrentLocation}
+              disabled={loadingLocation}
+            >
+              {loadingLocation ? "Fetching..." : "Use Current Location"}
+            </Button>
+          </div>
           {errors.pickupLocation && (
             <p className="text-red-500 text-sm">
               {errors.pickupLocation.message}
@@ -51,6 +100,7 @@ const TripDetailsForm = () => {
           )}
         </div>
 
+        {/* Dropoff Location */}
         <div>
           <label className="block text-sm font-medium">Dropoff Location</label>
           <Input
