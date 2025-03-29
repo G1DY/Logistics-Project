@@ -11,6 +11,9 @@ const Navbar = () => {
         <Link to="/TripDetailsForm" className="hover:underline">
           Log Form
         </Link>
+        <Link to="/test-map" className="hover:underline">
+          RoutesMap
+        </Link>
       </div>
     </nav>
   );
