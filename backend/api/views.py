@@ -5,6 +5,9 @@ from rest_framework.response import Response # type: ignore
 from rest_framework import viewsets # type: ignore
 from api.utils.osm import get_route
 import json
+from .models import Truck, Driver, Trip
+from .serializers import TruckSerializer, DriverSerializer, TripSerializer
+
 
 @api_view(['POST'])
 def calculate_route(request):
@@ -35,50 +38,57 @@ def calculate_route(request):
 
 # ========================= API Views ==========================#
 
-# class DriverViewSet(viewsets.ModelViewSet):
-#     queryset = Driver.objects.all()
-#     serializer_class = DriverSerializer
+# GET /api/trucks/active_trucks/ → Returns only active trucks.
+# GET /api/drivers/{id}/assigned_truck/ → Shows the truck assigned to a driver.
+# GET /api/trips/?status=completed → Filters trips by status.
+# GET /api/trips/ongoing_trips/ → Fetches only ongoing trips.
+# POST /api/trips/{id}/complete_trip/ → Marks a trip as completed.
 
-#     @action(detail=True, methods=['GET'])
-#     def compliance(self, request, pk=None):
-#         driver = self.get_object()
-#         compliance_record = ComplianceRecord.objects.filter(driver=driver).last()
-#         if compliance_record:
-#             serializer = ComplianceRecordSerializer(compliance_record)
-#             return Response(serializer.data)
-#         return Response({"message": "No compliance record found"}, status=404)
+class TruckViewSet(viewsets.ModelViewSet):
+    queryset = Truck.objects.all()
+    serializer_class = TruckSerializer
 
-# class VehicleViewSet(viewsets.ModelViewSet):
-#     queryset = Vehicle.objects.all()
-#     serializer_class = VehicleSerializer
+    @action(detail=False, methods=['GET'])
+    def active_trucks(self, request):
+        """Returns only active trucks."""
+        active_trucks = Truck.objects.filter(status="active")
+        serializer = self.get_serializer(active_trucks, many=True)
+        return Response(serializer.data)
 
-# class LogEntryViewSet(viewsets.ModelViewSet):
-#     queryset = LogEntry.objects.all()
-#     serializer_class = LogEntrySerializer
+class DriverViewSet(viewsets.ModelViewSet):
+    queryset = Driver.objects.all()
+    serializer_class = DriverSerializer
 
-#     def get_queryset(self):
-#         queryset = LogEntry.objects.all()
-#         driver_id = self.request.query_params.get('driver_id')
-#         date = self.request.query_params.get('date')
+    @action(detail=True, methods=['GET'])
+    def assigned_truck(self, request, pk=None):
+        """Fetch the truck assigned to a driver."""
+        driver = self.get_object()
+        if driver.assigned_truck:
+            return Response(TruckSerializer(driver.assigned_truck).data)
+        return Response({"message": "No truck assigned"}, status=404)
 
-#         if driver_id:
-#             queryset = queryset.filter(driver_id=driver_id)
-#         if date:
-#             queryset = queryset.filter(timestamp__date=date)
+class TripViewSet(viewsets.ModelViewSet):
+    serializer_class = TripSerializer
 
-#         return queryset
+    def get_queryset(self):
+        """Allow filtering trips by status (ongoing/completed)."""
+        queryset = Trip.objects.all()
+        status = self.request.query_params.get('status')
+        if status:
+            queryset = queryset.filter(status=status)
+        return queryset
 
-#     @action(detail=False, methods=['GET'])
-#     def driver_logs(self, request):
-#         driver_id = request.query_params.get('driver_id')
-#         logs = LogEntry.objects.filter(driver_id=driver_id)
-#         serializer = self.get_serializer(logs, many=True)
-#         return Response(serializer.data)
+    @action(detail=False, methods=['GET'])
+    def ongoing_trips(self, request):
+        """Fetch only ongoing trips."""
+        ongoing_trips = Trip.objects.filter(status="ongoing")
+        serializer = self.get_serializer(ongoing_trips, many=True)
+        return Response(serializer.data)
 
-# class ShippingDocumentViewSet(viewsets.ModelViewSet):
-#     queryset = ShippingDocument.objects.all()
-#     serializer_class = ShippingDocumentSerializer
-
-# class ComplianceRecordViewSet(viewsets.ModelViewSet):
-#     queryset = ComplianceRecord.objects.all()
-#     serializer_class = ComplianceRecordSerializer
+    @action(detail=True, methods=['POST'])
+    def complete_trip(self, request, pk=None):
+        """Mark a trip as completed."""
+        trip = self.get_object()
+        trip.status = "completed"
+        trip.save()
+        return Response({"message": f"Trip {trip.id} completed."})
