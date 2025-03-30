@@ -68,6 +68,7 @@ class DriverViewSet(viewsets.ModelViewSet):
         return Response({"message": "No truck assigned"}, status=404)
 
 class TripViewSet(viewsets.ModelViewSet):
+    queryset = Trip.objects.all()
     serializer_class = TripSerializer
 
     def get_queryset(self):
