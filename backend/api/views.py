@@ -44,6 +44,15 @@ class DriverViewSet(viewsets.ModelViewSet):
     queryset = Driver.objects.all()
     serializer_class = DriverSerializer
 
+    @action(detail=True, methods=['GET'])
+    def compliance(self, request, pk=None):
+        driver = self.get_object()
+        compliance_record = ComplianceRecord.objects.filter(driver=driver).last()
+        if compliance_record:
+            serializer = ComplianceRecordSerializer(compliance_record)
+            return Response(serializer.data)
+        return Response({"message": "No compliance record found"}, status=404)
+
 class VehicleViewSet(viewsets.ModelViewSet):
     queryset = Vehicle.objects.all()
     serializer_class = VehicleSerializer
@@ -51,6 +60,18 @@ class VehicleViewSet(viewsets.ModelViewSet):
 class LogEntryViewSet(viewsets.ModelViewSet):
     queryset = LogEntry.objects.all()
     serializer_class = LogEntrySerializer
+
+    def get_queryset(self):
+        queryset = LogEntry.objects.all()
+        driver_id = self.request.query_params.get('driver_id')
+        date = self.request.query_params.get('date')
+
+        if driver_id:
+            queryset = queryset.filter(driver_id=driver_id)
+        if date:
+            queryset = queryset.filter(timestamp__date=date)
+
+        return queryset
 
     @action(detail=False, methods=['GET'])
     def driver_logs(self, request):
