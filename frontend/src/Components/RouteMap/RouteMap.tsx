@@ -20,6 +20,33 @@ interface RouteMapProps {
   pickup: string;
   dropoff: string;
 }
+interface Instruction {
+  instruction: string;
+  distance?: number;
+  name?: string;
+}
+
+const formatInstruction = (step: string | Instruction, index: number) => {
+  // If the step is a string, return it directly
+  if (typeof step === "string") {
+    return `${index + 1}. ${step}`;
+  }
+
+  // If it's an object, ensure the instruction exists
+  if (!step || typeof step.instruction !== "string") {
+    return `${index + 1}. No instruction available`;
+  }
+
+  const { instruction, distance, name } = step;
+  const roadName = name && name.trim() ? name : "Unnamed road";
+  const meters = distance ? Math.round(distance) : 0;
+
+  if (instruction.startsWith("Proceed on") && distance) {
+    return `Continue for ${meters} meters on ${roadName}`;
+  }
+
+  return `${index + 1}. ${instruction}`;
+};
 
 const RouteMap = ({ pickup, dropoff }: RouteMapProps) => {
   const [pickupCoords, setPickupCoords] = useState<LatLngTuple | null>(null);
@@ -37,23 +64,18 @@ const RouteMap = ({ pickup, dropoff }: RouteMapProps) => {
     setError("");
 
     try {
-      // First, get the geocoded coordinates from your helper
       const [pickupLatLng, dropoffLatLng] = await Promise.all([
         getCoordinates(pickup),
         getCoordinates(dropoff),
       ]);
 
       if (!pickupLatLng || !dropoffLatLng) {
-        setError("Invalid locations. Could not fetch coordinates.");
-        setLoading(false);
-        return;
+        throw new Error("Invalid locations. Could not fetch coordinates.");
       }
 
       setPickupCoords(pickupLatLng);
       setDropoffCoords(dropoffLatLng);
 
-      // Prepare payload for your backend endpoint
-      // Note: getCoordinates returns [lat, lng] so we flip them for backend
       const payload = {
         start_lng: pickupLatLng[1],
         start_lat: pickupLatLng[0],
@@ -61,37 +83,30 @@ const RouteMap = ({ pickup, dropoff }: RouteMapProps) => {
         end_lat: dropoffLatLng[0],
       };
 
-      // Call your backend to calculate the route
       const response = await axios.post(
         "http://127.0.0.1:8000/calculate_route/",
         payload
       );
 
       const routeData = response.data;
-      if (!routeData.route) {
-        setError("Route data is empty.");
-        setLoading(false);
-        return;
-      }
+      if (!routeData.route) throw new Error("Route data is empty.");
 
-      // Convert coordinates from [lng, lat] to [lat, lng]
-      const convertedRoute = routeData.route.coordinates.map(
-        ([lng, lat]: [number, number]) => [lat, lng] as LatLngTuple
+      setRoute(
+        routeData.route.coordinates.map(
+          ([lng, lat]: [number, number]) => [lat, lng] as LatLngTuple
+        )
       );
-      setRoute(convertedRoute);
 
-      // Convert distance (meters to km) and duration (seconds to minutes)
-      if (routeData.distance) {
-        setDistance((routeData.distance / 1000).toFixed(2) + " km");
-      }
-      if (routeData.duration) {
-        setDuration((routeData.duration / 60).toFixed(1) + " mins");
-      }
-      if (routeData.instructions) {
-        setInstructions(routeData.instructions);
-      }
-    } catch (err) {
-      setError("Error fetching route. Please try again.");
+      setDistance(`${(routeData.distance / 1000).toFixed(2)} km`);
+      setDuration(`${(routeData.duration / 60).toFixed(1)} mins`);
+
+      setInstructions(
+        routeData.instructions.map((step: any, index: number) =>
+          formatInstruction(step, index)
+        )
+      );
+    } catch (err: any) {
+      setError(err.message || "Error fetching route. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -102,8 +117,7 @@ const RouteMap = ({ pickup, dropoff }: RouteMapProps) => {
   }, [fetchCoordinatesAndRoute]);
 
   return (
-    <div className="flex flex-col items-center space-y-6 w-full max-w-4xl mx-auto z-[-10]">
-      {/* Map Container */}
+    <div className="flex flex-col items-center space-y-6 w-full max-w-4xl mx-auto">
       <div className="w-full h-[500px] relative rounded-lg overflow-hidden shadow-lg border border-gray-200">
         {error && <p className="text-center text-red-500">{error}</p>}
 
@@ -118,21 +132,17 @@ const RouteMap = ({ pickup, dropoff }: RouteMapProps) => {
             className="h-full w-full"
           >
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-
             {route.length > 0 && (
               <Polyline positions={route} color="blue" weight={5} />
             )}
-
             <MarkerWithTooltip position={pickupCoords} label={pickup} />
             <MarkerWithTooltip position={dropoffCoords} label={dropoff} />
-
             <AutoFitBounds route={route} />
           </MapContainer>
         ) : (
           <p className="text-center text-gray-500">Could not load the map.</p>
         )}
 
-        {/* Route Details */}
         {distance && duration && (
           <Card className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white p-3 rounded-lg shadow-md text-sm font-medium">
             <CardContent className="p-2">
@@ -147,49 +157,34 @@ const RouteMap = ({ pickup, dropoff }: RouteMapProps) => {
         )}
       </div>
 
-      {/* Route Instructions Section */}
-      {Array.isArray(instructions) && instructions.length > 0 ? (
+      {instructions.length > 0 && (
         <Card className="w-full max-w-lg shadow-md mt-4">
           <CardContent className="p-4">
-            <h3 className="text-lg font-semibold mb-2">
-              {typeof instructions === "string"
-                ? instructions
-                : "Invalid instruction format"}
-            </h3>
+            <h3 className="text-lg font-semibold mb-2">Route Instructions</h3>
             <ScrollArea className="h-[200px] overflow-y-auto border border-gray-200 p-2 rounded-md">
               <ul className="list-disc pl-5 space-y-1 text-gray-700">
-                {instructions.map((instruction, index) => (
-                  <li key={index}>
-                    {instruction || "No instruction available"}
-                  </li>
+                {instructions.map((step, index) => (
+                  <li key={index}>{step}</li>
                 ))}
               </ul>
             </ScrollArea>
           </CardContent>
         </Card>
-      ) : (
-        <p>No route instructions available.</p>
       )}
     </div>
   );
 };
 
-// Auto-fit map bounds to the route
 const AutoFitBounds = ({ route }: { route: LatLngTuple[] }) => {
   const map = useMap();
-
   useEffect(() => {
     if (route.length > 0) {
-      setTimeout(() => {
-        map.fitBounds(L.latLngBounds(route), { padding: [50, 50] });
-      }, 500);
+      map.fitBounds(L.latLngBounds(route), { padding: [50, 50] });
     }
   }, [route, map]);
-
   return null;
 };
 
-// Custom marker component with tooltip
 const MarkerWithTooltip = ({
   position,
   label,
@@ -197,15 +192,13 @@ const MarkerWithTooltip = ({
   position: LatLngTuple | null;
   label: string;
 }) => {
-  if (!position) return null;
-
-  return (
+  return position ? (
     <Marker position={position}>
       <Tooltip direction="top" offset={[0, -10]} opacity={1}>
         <span>{label}</span>
       </Tooltip>
     </Marker>
-  );
+  ) : null;
 };
 
 export default RouteMap;

@@ -26,15 +26,10 @@ def calculate_route(request):
         route_info = get_route(start, end)
         if not route_info:
             return Response({"error": "Could not fetch route"}, status=500)
-
-        return Response({
-            "message": "Route calculated successfully!",
-            "route": route_info["geometry"],
-            "distance": route_info["distance"],
-            "duration": route_info["duration"],
-            "instructions": route_info["instructions"],
-        })
-
+        print("🚀 Route Info:", json.dumps(route_info, indent=2))  # Debugging output
+        
+        return Response(route_info)
+    
     except json.JSONDecodeError:
         return Response({"error": "Invalid JSON format"}, status=400)
     except Exception as e:
