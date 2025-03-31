@@ -1,25 +1,17 @@
 from django.shortcuts import render
-from django.http import HttpResponse
 from rest_framework.decorators import api_view, action # type: ignore
 from rest_framework.response import Response # type: ignore
 from rest_framework import viewsets # type: ignore
-from api.utils.osm import get_route
-import json
+from django.utils.timezone import now
 from .models import Truck, Driver, Trip
 from .serializers import TruckSerializer, DriverSerializer, TripSerializer
 
 
 @api_view(['POST'])
 def calculate_route(request):
+    """Handles route calculation based on start and end coordinates."""
     try:
-        print("Raw request body:", request.body)  # Debugging: Print raw request body
-        
-        if not request.body:
-            return Response({"error": "Empty request body"}, status=400)
-
-        data = json.loads(request.body.decode('utf-8'))  # Manually parse JSON
-
-        print("Parsed request data:", data)  # Debugging: Print parsed JSON data
+        data = request.data  # DRF automatically parses JSON
 
         if not all(k in data for k in ["start_lng", "start_lat", "end_lng", "end_lat"]):
             return Response({"error": "Missing required parameters"}, status=400)
@@ -29,22 +21,12 @@ def calculate_route(request):
 
         return Response({"message": "API is working!", "start": start, "end": end})
 
-    except json.JSONDecodeError as e:
-        return Response({"error": f"JSON decode error: {str(e)}"}, status=400)
-
     except Exception as e:
         return Response({"error": str(e)}, status=400)
 
 
-# ========================= API Views ==========================#
-
-# GET /api/trucks/active_trucks/ → Returns only active trucks.
-# GET /api/drivers/{id}/assigned_truck/ → Shows the truck assigned to a driver.
-# GET /api/trips/?status=completed → Filters trips by status.
-# GET /api/trips/ongoing_trips/ → Fetches only ongoing trips.
-# POST /api/trips/{id}/complete_trip/ → Marks a trip as completed.
-
 class TruckViewSet(viewsets.ModelViewSet):
+    """Handles CRUD for Trucks."""
     queryset = Truck.objects.all()
     serializer_class = TruckSerializer
 
@@ -55,7 +37,9 @@ class TruckViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(active_trucks, many=True)
         return Response(serializer.data)
 
+
 class DriverViewSet(viewsets.ModelViewSet):
+    """Handles CRUD for Drivers."""
     queryset = Driver.objects.all()
     serializer_class = DriverSerializer
 
@@ -65,19 +49,18 @@ class DriverViewSet(viewsets.ModelViewSet):
         driver = self.get_object()
         if driver.assigned_truck:
             return Response(TruckSerializer(driver.assigned_truck).data)
-        return Response({"message": "No truck assigned"}, status=404)
+        return Response({"error": "No truck assigned"}, status=404)
+
 
 class TripViewSet(viewsets.ModelViewSet):
+    """Handles CRUD for Trips."""
     queryset = Trip.objects.all()
     serializer_class = TripSerializer
 
     def get_queryset(self):
         """Allow filtering trips by status (ongoing/completed)."""
-        queryset = Trip.objects.all()
         status = self.request.query_params.get('status')
-        if status:
-            queryset = queryset.filter(status=status)
-        return queryset
+        return Trip.objects.filter(status=status) if status else Trip.objects.all()
 
     @action(detail=False, methods=['GET'])
     def ongoing_trips(self, request):
@@ -88,8 +71,9 @@ class TripViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['POST'])
     def complete_trip(self, request, pk=None):
-        """Mark a trip as completed."""
+        """Mark a trip as completed and set the end_time."""
         trip = self.get_object()
         trip.status = "completed"
+        trip.end_time = now()  # Set completion timestamp
         trip.save()
-        return Response({"message": f"Trip {trip.id} completed."})
+        return Response({"message": f"Trip {trip.id} completed.", "end_time": trip.end_time})
