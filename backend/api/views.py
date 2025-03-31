@@ -22,19 +22,21 @@ def calculate_route(request):
 
         start = (data['start_lng'], data['start_lat'])
         end = (data['end_lng'], data['end_lat'])
-        route_geometry = get_route(start, end)
-
-        if not route_geometry:
+        
+        route_info = get_route(start, end)
+        if not route_info:
             return Response({"error": "Could not fetch route"}, status=500)
 
         return Response({
             "message": "Route calculated successfully!",
-            "route": route_geometry
+            "route": route_info["geometry"],
+            "distance": route_info["distance"],
+            "duration": route_info["duration"],
+            "instructions": route_info["instructions"],
         })
 
     except json.JSONDecodeError:
         return Response({"error": "Invalid JSON format"}, status=400)
-
     except Exception as e:
         return Response({"error": str(e)}, status=500)
 
