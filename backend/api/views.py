@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render
 from rest_framework.decorators import api_view, action # type: ignore
 from rest_framework.response import Response # type: ignore
@@ -5,24 +6,37 @@ from rest_framework import viewsets # type: ignore
 from django.utils.timezone import now
 from .models import Truck, Driver, Trip
 from .serializers import TruckSerializer, DriverSerializer, TripSerializer
+from api.utils.osm import get_route
 
 
 @api_view(['POST'])
 def calculate_route(request):
-    """Handles route calculation based on start and end coordinates."""
     try:
-        data = request.data  # DRF automatically parses JSON
+        if not request.body:
+            return Response({"error": "Empty request body"}, status=400)
 
-        if not all(k in data for k in ["start_lng", "start_lat", "end_lng", "end_lat"]):
+        data = json.loads(request.body.decode('utf-8'))
+        required_keys = ["start_lng", "start_lat", "end_lng", "end_lat"]
+        if not all(k in data for k in required_keys):
             return Response({"error": "Missing required parameters"}, status=400)
 
         start = (data['start_lng'], data['start_lat'])
         end = (data['end_lng'], data['end_lat'])
+        route_geometry = get_route(start, end)
 
-        return Response({"message": "API is working!", "start": start, "end": end})
+        if not route_geometry:
+            return Response({"error": "Could not fetch route"}, status=500)
+
+        return Response({
+            "message": "Route calculated successfully!",
+            "route": route_geometry
+        })
+
+    except json.JSONDecodeError:
+        return Response({"error": "Invalid JSON format"}, status=400)
 
     except Exception as e:
-        return Response({"error": str(e)}, status=400)
+        return Response({"error": str(e)}, status=500)
 
 
 class TruckViewSet(viewsets.ModelViewSet):

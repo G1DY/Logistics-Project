@@ -1,18 +1,26 @@
 import requests # type: ignore
 
-OSRM_BASE_URL = "https://www.openstreetmap.org/#map=6/0.17/37.90"
-
 def get_route(start, end):
     """
-    Fetches the route from OpenStreetMap's OSRM API.
-    :param start: Tuple (longitude, latitude) for start location.
-    :param end: Tuple (longitude, latitude) for destination.
-    :return: JSON response with route details.
+    Fetches the driving route between start and end coordinates using OSRM.
+    
+    :param start: Tuple (longitude, latitude) for start point
+    :param end: Tuple (longitude, latitude) for end point
+    :return: GeoJSON route geometry or None if an error occurs
     """
-    url = f"{OSRM_BASE_URL}/{start[0]},{start[1]};{end[0]},{end[1]}?overview=full&geometries=geojson"
-    response = requests.get(url)
+    base_url = "http://router.project-osrm.org/route/v1/driving/"
+    coordinates = f"{start[0]},{start[1]};{end[0]},{end[1]}"
+    params = "?overview=full&geometries=geojson"
 
-    if response.status_code == 200:
-        return response.json()
-    else:
-        return None
+    try:
+        response = requests.get(f"{base_url}{coordinates}{params}")
+        response.raise_for_status()
+        data = response.json()
+
+        if "routes" in data and data["routes"]:
+            return data["routes"][0]["geometry"]
+
+    except requests.RequestException as e:
+        print(f"OSM API Error: {e}")
+
+    return None
