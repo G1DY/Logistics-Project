@@ -22,3 +22,6 @@ class TripSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trip
         fields = ['id', 'truck', 'driver', 'pickup_location', 'dropoff_location', 'start_time', 'end_time', 'status']
+        extra_kwargs = {
+            'end_time': {'read_only': True}  # Prevents it from being set on creation
+        }
