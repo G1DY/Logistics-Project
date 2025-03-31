@@ -14,7 +14,7 @@ import axios from "axios";
 import L from "leaflet";
 import { Card, CardContent } from "../../Components/ui/card"; // ShadCN UI
 import { ScrollArea } from "../../Components/ui/scroll-area"; // For smooth scrolling
-import { Loader2 } from "lucide-react"; // For a better loading state
+import { Loader2 } from "lucide-react"; // For loading state
 
 interface RouteMapProps {
   pickup: string;
@@ -37,6 +37,7 @@ const RouteMap = ({ pickup, dropoff }: RouteMapProps) => {
     setError("");
 
     try {
+      // First, get the geocoded coordinates from your helper
       const [pickupLatLng, dropoffLatLng] = await Promise.all([
         getCoordinates(pickup),
         getCoordinates(dropoff),
@@ -51,27 +52,44 @@ const RouteMap = ({ pickup, dropoff }: RouteMapProps) => {
       setPickupCoords(pickupLatLng);
       setDropoffCoords(dropoffLatLng);
 
-      const response = await axios.get(
-        `https://router.project-osrm.org/route/v1/driving/${pickupLatLng[1]},${pickupLatLng[0]};${dropoffLatLng[1]},${dropoffLatLng[0]}?overview=full&geometries=geojson&steps=true`
+      // Prepare payload for your backend endpoint
+      // Note: getCoordinates returns [lat, lng] so we flip them for backend
+      const payload = {
+        start_lng: pickupLatLng[1],
+        start_lat: pickupLatLng[0],
+        end_lng: dropoffLatLng[1],
+        end_lat: dropoffLatLng[0],
+      };
+
+      // Call your backend to calculate the route
+      const response = await axios.post(
+        "http://127.0.0.1:8000/calculate_route/",
+        payload
       );
 
-      const routeData = response.data.routes[0];
-      if (!routeData) {
+      const routeData = response.data;
+      if (!routeData.route) {
         setError("Route data is empty.");
         setLoading(false);
         return;
       }
 
-      setRoute(
-        routeData.geometry.coordinates.map(
-          ([lng, lat]: [number, number]) => [lat, lng] as LatLngTuple
-        )
+      // Convert coordinates from [lng, lat] to [lat, lng]
+      const convertedRoute = routeData.route.coordinates.map(
+        ([lng, lat]: [number, number]) => [lat, lng] as LatLngTuple
       );
-      setDistance((routeData.distance / 1000).toFixed(2) + " km");
-      setDuration((routeData.duration / 60).toFixed(1) + " mins");
-      setInstructions(
-        routeData.legs[0].steps.map((step: any) => step.maneuver.instruction)
-      );
+      setRoute(convertedRoute);
+
+      // Convert distance (meters to km) and duration (seconds to minutes)
+      if (routeData.distance) {
+        setDistance((routeData.distance / 1000).toFixed(2) + " km");
+      }
+      if (routeData.duration) {
+        setDuration((routeData.duration / 60).toFixed(1) + " mins");
+      }
+      if (routeData.instructions) {
+        setInstructions(routeData.instructions);
+      }
     } catch (err) {
       setError("Error fetching route. Please try again.");
     } finally {
@@ -130,19 +148,27 @@ const RouteMap = ({ pickup, dropoff }: RouteMapProps) => {
       </div>
 
       {/* Route Instructions Section */}
-      {instructions.length > 0 && (
+      {Array.isArray(instructions) && instructions.length > 0 ? (
         <Card className="w-full max-w-lg shadow-md mt-4">
           <CardContent className="p-4">
-            <h3 className="text-lg font-semibold mb-2">Route Instructions</h3>
+            <h3 className="text-lg font-semibold mb-2">
+              {typeof instructions === "string"
+                ? instructions
+                : "Invalid instruction format"}
+            </h3>
             <ScrollArea className="h-[200px] overflow-y-auto border border-gray-200 p-2 rounded-md">
               <ul className="list-disc pl-5 space-y-1 text-gray-700">
                 {instructions.map((instruction, index) => (
-                  <li key={index}>{instruction}</li>
+                  <li key={index}>
+                    {instruction || "No instruction available"}
+                  </li>
                 ))}
               </ul>
             </ScrollArea>
           </CardContent>
         </Card>
+      ) : (
+        <p>No route instructions available.</p>
       )}
     </div>
   );

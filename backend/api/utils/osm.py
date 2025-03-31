@@ -21,5 +21,8 @@ def get_route(start, end):
         "geometry": route_data["geometry"],
         "distance": route_data["distance"],
         "duration": route_data["duration"],
-        "instructions": [step["maneuver"]["instruction"] for step in route_data["legs"][0]["steps"]],
+        "instructions": [
+        step["maneuver"].get("instruction", "No instruction available")
+        for step in route_data["legs"][0]["steps"]
+    ],
     }

@@ -38,6 +38,7 @@ def calculate_route(request):
     except json.JSONDecodeError:
         return Response({"error": "Invalid JSON format"}, status=400)
     except Exception as e:
+        print("Exception occurred:", e)
         return Response({"error": str(e)}, status=500)
 
 
