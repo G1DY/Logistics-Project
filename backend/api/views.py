@@ -57,8 +57,8 @@ def calculate_route(request):
 
         # ✅ Store trip details
         trip = Trip.objects.create(
-            truck_id=Truck.objects.get(id=truck_id),
-            driver_id=Driver.objects.get(id=driver_id),
+            truck_id=truck_id,
+            driver_id=driver_id,
             pickup_location=f"{start}",
             dropoff_location=f"{end}",
             start_time=pickup_time,
