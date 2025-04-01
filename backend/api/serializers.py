@@ -2,31 +2,43 @@ from rest_framework import serializers # type: ignore
 from rest_framework.validators import UniqueValidator # type: ignore
 from .models import Truck, Driver, Trip, DriverLog
 
-class DriverLogSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = DriverLog
-        fields = '__all__'
-
+# Truck Serializer
 class TruckSerializer(serializers.ModelSerializer):
     class Meta:
         model = Truck
         fields = ['id', 'license_plate', 'model', 'capacity', 'status']
 
+
+# Driver Serializer
 class DriverSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(validators=[UniqueValidator(queryset=Driver.objects.all())])
-    phone_number = serializers.CharField(max_length=15, validators=[UniqueValidator(queryset=Driver.objects.all())])
+    assigned_truck = TruckSerializer(read_only=True)  # Nesting Truck serializer
 
     class Meta:
         model = Driver
         fields = ['id', 'name', 'phone_number', 'email', 'assigned_truck']
 
+
+# Driver Log Serializer
+class DriverLogSerializer(serializers.ModelSerializer):
+    driver = DriverSerializer(read_only=True)  # Nested Driver serializer
+
+    class Meta:
+        model = DriverLog
+        fields = [
+            'id', 'driver', 'log_date', 'hours_worked', 'stops', 'rest_hours',
+            'fuel_stop_locations', 'fueling_count', 'distance_covered',
+            'pickup_time', 'dropoff_time'
+        ]
+
+
+# Trip Serializer
 class TripSerializer(serializers.ModelSerializer):
-    truck = serializers.PrimaryKeyRelatedField(queryset=Truck.objects.all())
-    driver = serializers.PrimaryKeyRelatedField(queryset=Driver.objects.all())
+    truck = TruckSerializer(read_only=True)  # Nested Truck serializer
+    driver = DriverSerializer(read_only=True)  # Nested Driver serializer
 
     class Meta:
         model = Trip
-        fields = ['id', 'truck', 'driver', 'pickup_location', 'dropoff_location', 'start_time', 'end_time', 'status']
-        extra_kwargs = {
-            'end_time': {'read_only': True}  # Prevents it from being set on creation
-        }
+        fields = [
+            'id', 'truck', 'driver', 'pickup_location', 'dropoff_location',
+            'start_time', 'end_time', 'status'
+        ]
