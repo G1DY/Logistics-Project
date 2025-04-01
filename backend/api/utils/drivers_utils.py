@@ -43,7 +43,7 @@ def log_driver_hours(driver_id, travel_duration, pickup_time, distance, route_ge
 
     # Create the log entry
     DriverLog.objects.create(
-        driver_id=driver_id,
+        driver_id=Driver.objects.get(id=driver_id),
         hours_worked=travel_duration / 60,  # Convert minutes to hours
         pickup_time=pickup_time,
         dropoff_time=dropoff_time,

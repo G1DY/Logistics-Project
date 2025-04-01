@@ -14,7 +14,7 @@ def get_route(start, end):
         coordinates = f"{start[0]},{start[1]};{end[0]},{end[1]}"
         url = f"{OSRM_BASE_URL}{coordinates}?overview=simplified&geometries=geojson&steps=true"
 
-        response = requests.get(url, timeout=10)  # Prevent hanging requests
+        response = requests.get(url, timeout=30)  # Prevent hanging requests
         response.raise_for_status()
         data = response.json()
 
