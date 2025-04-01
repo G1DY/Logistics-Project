@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from django.db.models import Sum
 from backend.api.models import DriverLog
+from backend.api.utils.route_geometry import get_location_at_distance
 
 
 def check_cycle_hours(driver_id):
@@ -17,18 +18,36 @@ def check_cycle_hours(driver_id):
 
     return total_hours < 70  # ✅ True if under limit, False if exceeded
 
-def log_driver_hours(driver_id, travel_duration):
+def log_driver_hours(driver_id, travel_duration, pickup_time, distance, route_geometry):
     """
-    Logs the driver's trip hours and timestamps.
+    Logs the driver's trip hours, timestamps, fuel stops, and their locations.
     """
-    dropoff_time = pickup_time + timedelta(minutes=travel_duration) # type: ignore
+    dropoff_time = pickup_time + timedelta(minutes=travel_duration)
 
+    # 🚛⛽ Auto-calculate fuel stops (assuming refueling every 1000 miles)
+    fuel_stop_interval = 1000  # in miles
+    fueling_count = max(1, int(distance // fuel_stop_interval))
+    
+    fuel_stop_locations = []
+
+    # 🚛 Calculate fuel stop locations based on route geometry
+    if fueling_count > 0:
+        for i in range(1, fueling_count + 1):
+            # Calculate the distance of each fuel stop along the route
+            stop_distance = i * fuel_stop_interval  # miles
+            stop_lat, stop_lng = get_location_at_distance(route_geometry, stop_distance)
+            fuel_stop_locations.append((stop_lat, stop_lng))
+
+    # Create the log entry
     DriverLog.objects.create(
         driver_id=driver_id,
         hours_worked=travel_duration / 60,  # Convert minutes to hours
-        pickup_time=pickup_time, # type: ignore
+        pickup_time=pickup_time,
         dropoff_time=dropoff_time,
+        distance_covered=distance,
+        fueling_count=fueling_count,
+        fuel_stop_locations=fuel_stop_locations,  # Store fuel stop locations
         log_date=datetime.now()
     )
 
-    return dropoff_time 
+    return dropoff_time, fueling_count, fuel_stop_locations

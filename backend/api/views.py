@@ -41,12 +41,17 @@ def calculate_route(request):
 
         # 🕒 Auto-fill timestamps
         pickup_time = datetime.now()
-        dropoff_time = pickup_time + timedelta(minutes=route_info["duration"])
+        dropoff_time, fueling_count, fuel_stop_locations = log_driver_hours(
+            driver_id, route_info["duration"], pickup_time, route_info["distance"], route_info["route"]
+        )
 
-        # ✅ Log trip details
-        log_driver_hours(driver_id, route_info["duration"], pickup_time)
+        # 🚨 Check for excessive fuel stops
+        if fueling_count > 3:
+            warning_message = f"Warning: This trip requires {fueling_count} fuel stops."
+        else:
+            warning_message = None
 
-        # ✅ Store in Trip Model
+        # ✅ Store trip details
         trip = Trip.objects.create(
             truck_id=truck_id,
             driver_id=driver_id,
@@ -54,13 +59,16 @@ def calculate_route(request):
             dropoff_location=f"{end}",
             start_time=pickup_time,
             end_time=dropoff_time,
-            status="ongoing"  # Will change to "completed" after drop-off
+            status="ongoing"
         )
 
-        # 📝 Add timestamps to response
+        # 📝 Add timestamps, fuel stops, and warning to response
         route_info.update({
             "pickup_time": pickup_time.strftime("%Y-%m-%d %H:%M:%S"),
             "dropoff_time": dropoff_time.strftime("%Y-%m-%d %H:%M:%S"),
+            "fueling_count": fueling_count,  # ⛽ Add fuel stops
+            "fuel_stop_locations": fuel_stop_locations,  # Locations of fuel stops
+            "warning": warning_message,  # Warning for excessive fuel stops
             "trip_id": trip.id
         })
 
