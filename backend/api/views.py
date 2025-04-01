@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view, action # type: ignore
 from rest_framework.response import Response # type: ignore
 from rest_framework import viewsets # type: ignore
 from django.utils.timezone import now
+from django.utils import timezone
 from .models import Truck, Driver, Trip
 from .serializers import TruckSerializer, DriverSerializer, TripSerializer
 from api.utils.route_utils import get_route
@@ -86,6 +87,12 @@ def log_driver_activity(request):
     """
     Logs driver activity including stops, rest, fueling, and total driving hours.
     """
+    driver_id = request.data.get("driver_id")
+    
+    # Check if the driver exists
+    if not Driver.objects.filter(id=driver_id).exists():
+        return Response({"error": "Driver not found"}, status=404)
+
     serializer = DriverLogSerializer(data=request.data)
     
     if serializer.is_valid():

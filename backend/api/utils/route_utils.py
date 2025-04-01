@@ -1,5 +1,6 @@
 import requests # type: ignore
 from datetime import datetime, timedelta
+from django.utils import timezone
 
 
 OSRM_BASE_URL = "http://router.project-osrm.org/route/v1/truck/"
@@ -24,8 +25,8 @@ def get_route(start, end):
         travel_duration_minutes = round(route_data["duration"] / 60, 1)  # Convert seconds to minutes
 
         # Auto-fill pickup and drop-off times
-        pickup_time = datetime.now()  # Use current time as pickup
-        dropoff_time = pickup_time + timedelta(minutes=travel_duration_minutes)
+        pickup_time = timezone.now()  # Use current time as pickup
+        dropoff_time = pickup_time + timezone(minutes=travel_duration_minutes)
 
         return {
             "route": route_data["geometry"],
