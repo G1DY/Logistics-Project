@@ -1,20 +1,5 @@
 from django.db import models
 
-class DriverLog(models.Model):
-    driver_id = models.CharField(max_length=50)  # Unique driver identifier
-    date = models.DateField(auto_now_add=True)  # Log date
-    total_hours = models.FloatField(default=0.0)  # Total driving hours for the day
-    stops = models.IntegerField(default=0)  # Number of stops
-    rest_hours = models.FloatField(default=0.0)  # Total rest time in hours
-    fueling_count = models.IntegerField(default=0)  # Number of fuel stops
-    distance_covered = models.FloatField(default=0.0)  # Distance in miles
-    pickup_time = models.DateTimeField(null=True, blank=True)  # Pickup time in hours
-    dropoff_time = models.DateTimeField(null=True, blank=True)  # Drop-off time in hours
-
-    def __str__(self):
-        return f"Driver {self.driver_id} - {self.date}"
-
-
 class TruckStatus(models.TextChoices):
     ACTIVE = "active", "Active"
     INACTIVE = "inactive", "Inactive"
@@ -33,7 +18,6 @@ class Truck(models.Model):
     def __str__(self):
         return f"{self.model} - {self.license_plate}"
 
-
 class Driver(models.Model):
     name = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=15, unique=True)
@@ -42,6 +26,21 @@ class Driver(models.Model):
 
     def __str__(self):
         return self.name
+
+class DriverLog(models.Model):
+    driver = models.ForeignKey(Driver, on_delete=models.CASCADE, default=1)   # Unique driver identifier
+    log_date = models.DateField(auto_now_add=True)  # Log date
+    hours_worked = models.FloatField(default=0.0)  # Total driving hours for the day
+    stops = models.IntegerField(default=0)  # Number of stops
+    rest_hours = models.FloatField(default=0.0)  # Total rest time in hours
+    fuel_stop_locations = models.JSONField(default=list)
+    fueling_count = models.IntegerField(default=0) # Number of fuel stops
+    distance_covered = models.FloatField(default=0.0)  # Distance in miles
+    pickup_time = models.DateTimeField(null=True, blank=True)  # Pickup time in hours
+    dropoff_time = models.DateTimeField(null=True, blank=True)  # Drop-off time in hours
+
+    def __str__(self):
+        return f"Driver {self.driver} - {self.log_date}"
 
 
 class TripStatus(models.TextChoices):

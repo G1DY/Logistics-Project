@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from django.db.models import Sum
-from backend.api.models import DriverLog
-from backend.api.utils.route_geometry import get_location_at_distance
+from api.models import DriverLog
+from api.utils.route_geometry import get_location_at_distance
 
 
 def check_cycle_hours(driver_id):

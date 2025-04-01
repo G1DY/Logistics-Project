@@ -1,14 +1,14 @@
 from datetime import datetime, timedelta
 import json
 from django.shortcuts import render
-from backend.api.utils.drivers_utils import check_cycle_hours, log_driver_hours
+from api.utils.drivers_utils import check_cycle_hours, log_driver_hours
 from rest_framework.decorators import api_view, action # type: ignore
 from rest_framework.response import Response # type: ignore
 from rest_framework import viewsets # type: ignore
 from django.utils.timezone import now
 from .models import Truck, Driver, Trip
 from .serializers import TruckSerializer, DriverSerializer, TripSerializer
-from backend.api.utils.route_utils import get_route
+from api.utils.route_utils import get_route
 from .models import DriverLog
 from .serializers import DriverLogSerializer
 from django.http import JsonResponse
