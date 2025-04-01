@@ -19,10 +19,16 @@ def check_cycle_hours(driver_id):
 
 def log_driver_hours(driver_id, travel_duration):
     """
-    Logs the hours worked by the driver after a trip.
+    Logs the driver's trip hours and timestamps.
     """
+    dropoff_time = pickup_time + timedelta(minutes=travel_duration) # type: ignore
+
     DriverLog.objects.create(
         driver_id=driver_id,
-        hours_worked=travel_duration / 60,  # ✅ Convert minutes to hours correctly
+        hours_worked=travel_duration / 60,  # Convert minutes to hours
+        pickup_time=pickup_time, # type: ignore
+        dropoff_time=dropoff_time,
         log_date=datetime.now()
     )
+
+    return dropoff_time 

@@ -21,13 +21,14 @@ def calculate_route(request):
             return Response({"error": "Empty request body"}, status=400)
 
         data = request.data
-        required_keys = ["start_lng", "start_lat", "end_lng", "end_lat", "driver_id"]
+        required_keys = ["start_lng", "start_lat", "end_lng", "end_lat", "driver_id", "truck_id"]
         if not all(k in data for k in required_keys):
             return Response({"error": "Missing required parameters"}, status=400)
 
         start = (data['start_lng'], data['start_lat'])
         end = (data['end_lng'], data['end_lat'])
         driver_id = data["driver_id"]
+        truck_id = data["truck_id"]
 
         # 🚀 Check if driver can continue based on 70-hour rule
         if not check_cycle_hours(driver_id):
@@ -42,12 +43,26 @@ def calculate_route(request):
         pickup_time = datetime.now()
         dropoff_time = pickup_time + timedelta(minutes=route_info["duration"])
 
-        # 📝 Add timestamps to response
-        route_info["pickup_time"] = pickup_time.strftime("%Y-%m-%d %H:%M:%S")
-        route_info["dropoff_time"] = dropoff_time.strftime("%Y-%m-%d %H:%M:%S")
+        # ✅ Log trip details
+        log_driver_hours(driver_id, route_info["duration"], pickup_time)
 
-        # 🔄 Auto-log driver hours
-        log_driver_hours(driver_id, route_info["duration"])
+        # ✅ Store in Trip Model
+        trip = Trip.objects.create(
+            truck_id=truck_id,
+            driver_id=driver_id,
+            pickup_location=f"{start}",
+            dropoff_location=f"{end}",
+            start_time=pickup_time,
+            end_time=dropoff_time,
+            status="ongoing"  # Will change to "completed" after drop-off
+        )
+
+        # 📝 Add timestamps to response
+        route_info.update({
+            "pickup_time": pickup_time.strftime("%Y-%m-%d %H:%M:%S"),
+            "dropoff_time": dropoff_time.strftime("%Y-%m-%d %H:%M:%S"),
+            "trip_id": trip.id
+        })
 
         return Response(route_info)
 
