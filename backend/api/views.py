@@ -1,14 +1,17 @@
+from datetime import datetime, timedelta
 import json
 from django.shortcuts import render
+from backend.api.utils.drivers_utils import check_cycle_hours, log_driver_hours
 from rest_framework.decorators import api_view, action # type: ignore
 from rest_framework.response import Response # type: ignore
 from rest_framework import viewsets # type: ignore
 from django.utils.timezone import now
 from .models import Truck, Driver, Trip
 from .serializers import TruckSerializer, DriverSerializer, TripSerializer
-from api.utils.osm import get_route
+from backend.api.utils.route_utils import get_route
 from .models import DriverLog
 from .serializers import DriverLogSerializer
+from django.http import JsonResponse
 
 #--------------route map------------#
 @api_view(['POST'])
@@ -17,21 +20,37 @@ def calculate_route(request):
         if not request.body:
             return Response({"error": "Empty request body"}, status=400)
 
-        data = json.loads(request.body.decode('utf-8'))
-        required_keys = ["start_lng", "start_lat", "end_lng", "end_lat"]
+        data = request.data
+        required_keys = ["start_lng", "start_lat", "end_lng", "end_lat", "driver_id"]
         if not all(k in data for k in required_keys):
             return Response({"error": "Missing required parameters"}, status=400)
 
         start = (data['start_lng'], data['start_lat'])
         end = (data['end_lng'], data['end_lat'])
-        
+        driver_id = data["driver_id"]
+
+        # 🚀 Check if driver can continue based on 70-hour rule
+        if not check_cycle_hours(driver_id):
+            return Response({"error": "You have exceeded the 70-hour limit for the past 8 days."}, status=400)
+
+        # 🔄 Fetch route details
         route_info = get_route(start, end)
         if not route_info:
             return Response({"error": "Could not fetch route"}, status=500)
-        print("🚀 Route Info:", json.dumps(route_info, indent=2))  # Debugging output
-        
+
+        # 🕒 Auto-fill timestamps
+        pickup_time = datetime.now()
+        dropoff_time = pickup_time + timedelta(minutes=route_info["duration"])
+
+        # 📝 Add timestamps to response
+        route_info["pickup_time"] = pickup_time.strftime("%Y-%m-%d %H:%M:%S")
+        route_info["dropoff_time"] = dropoff_time.strftime("%Y-%m-%d %H:%M:%S")
+
+        # 🔄 Auto-log driver hours
+        log_driver_hours(driver_id, route_info["duration"])
+
         return Response(route_info)
-    
+
     except json.JSONDecodeError:
         return Response({"error": "Invalid JSON format"}, status=400)
     except Exception as e:

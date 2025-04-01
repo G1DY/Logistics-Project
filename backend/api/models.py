@@ -8,8 +8,8 @@ class DriverLog(models.Model):
     rest_hours = models.FloatField(default=0.0)  # Total rest time in hours
     fueling_count = models.IntegerField(default=0)  # Number of fuel stops
     distance_covered = models.FloatField(default=0.0)  # Distance in miles
-    pickup_time = models.FloatField(default=0.0)  # Pickup time in hours
-    dropoff_time = models.FloatField(default=0.0)  # Drop-off time in hours
+    pickup_time = models.DateTimeField(null=True, blank=True)  # Pickup time in hours
+    dropoff_time = models.DateTimeField(null=True, blank=True)  # Drop-off time in hours
 
     def __str__(self):
         return f"Driver {self.driver_id} - {self.date}"
