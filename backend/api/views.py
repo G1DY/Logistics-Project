@@ -13,6 +13,8 @@ from api.utils.route_utils import get_route
 from .models import DriverLog
 from .serializers import DriverLogSerializer
 from django.http import JsonResponse
+from rest_framework.response import Response # type: ignore
+
 
 #--------------route map------------#
 @api_view(['POST'])
@@ -38,10 +40,11 @@ def calculate_route(request):
         # 🔄 Fetch route details
         route_info = get_route(start, end)
         if not route_info:
+            print("🚨 get_route failed: No route info returned")
             return Response({"error": "Could not fetch route"}, status=500)
 
         # 🕒 Auto-fill timestamps
-        pickup_time = datetime.now()
+        pickup_time = timezone.now()
         dropoff_time, fueling_count, fuel_stop_locations = log_driver_hours(
             driver_id, route_info["duration"], pickup_time, route_info["distance"], route_info["route"]
         )
@@ -54,8 +57,8 @@ def calculate_route(request):
 
         # ✅ Store trip details
         trip = Trip.objects.create(
-            truck_id=truck_id,
-            driver_id=driver_id,
+            truck_id=Truck.objects.get(id=truck_id),
+            driver_id=Driver.objects.get(id=driver_id),
             pickup_location=f"{start}",
             dropoff_location=f"{end}",
             start_time=pickup_time,
@@ -79,7 +82,7 @@ def calculate_route(request):
         return Response({"error": "Invalid JSON format"}, status=400)
     except Exception as e:
         print("Exception occurred:", e)
-        return Response({"error": str(e)}, status=500)
+        return Response({"error": f"An error occurred: {str(e)}"}, status=500)
 #--------------driverLogs-----------------#
     
 @api_view(['POST'])

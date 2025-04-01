@@ -26,7 +26,7 @@ def get_route(start, end):
 
         # Auto-fill pickup and drop-off times
         pickup_time = timezone.now()  # Use current time as pickup
-        dropoff_time = pickup_time + timezone(minutes=travel_duration_minutes)
+        dropoff_time = pickup_time + timedelta(minutes=travel_duration_minutes)
 
         return {
             "route": route_data["geometry"],

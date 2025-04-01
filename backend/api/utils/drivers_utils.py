@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from django.db.models import Sum
-from api.models import DriverLog
+from api.models import Driver, DriverLog
 from api.utils.route_geometry import get_location_at_distance
 from django.utils import timezone
 
@@ -11,12 +11,13 @@ def check_cycle_hours(driver_id):
     Checks if the driver has exceeded 70 hours in the past 8 days.
     Returns True if the driver can continue, otherwise False.
     """
-    eight_days_ago = timezone.now() - timezone(days=8)
+    eight_days_ago = timezone.now() - timedelta(days=8)
 
     total_hours = DriverLog.objects.filter(
-        driver_id=driver_id,
+        driver_id=Driver.objects.get(id=driver_id),
         log_date__gte=eight_days_ago
     ).aggregate(Sum('hours_worked'))['hours_worked__sum'] or 0
+    print(f"DEBUG: Driver {driver_id} has worked {total_hours} hours in the past 8 days.")
 
     return total_hours < 70  # ✅ True if under limit, False if exceeded
 
@@ -49,7 +50,7 @@ def log_driver_hours(driver_id, travel_duration, pickup_time, distance, route_ge
         distance_covered=distance,
         fueling_count=fueling_count,
         fuel_stop_locations=fuel_stop_locations,  # Store fuel stop locations
-        log_date=datetime.now()
+        log_date=timezone.now()
     )
 
     return dropoff_time, fueling_count, fuel_stop_locations
