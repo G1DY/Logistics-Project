@@ -28,7 +28,7 @@ class Driver(models.Model):
         return self.name
 
 class DriverLog(models.Model):
-    driver = models.ForeignKey(Driver, on_delete=models.CASCADE, default=1)   # Unique driver identifier
+    driver = models.ForeignKey(Driver, on_delete=models.CASCADE)   # Unique driver identifier
     log_date = models.DateField(auto_now_add=True)  # Log date
     hours_worked = models.FloatField(default=0.0)  # Total driving hours for the day
     stops = models.IntegerField(default=0)  # Number of stops
@@ -40,7 +40,7 @@ class DriverLog(models.Model):
     dropoff_time = models.DateTimeField(null=True, blank=True)  # Drop-off time in hours
 
     def __str__(self):
-        return f"Driver {self.driver} - {self.log_date}"
+        return f"Driver {self.driver.name} - {self.log_date}"
 
 
 class TripStatus(models.TextChoices):
