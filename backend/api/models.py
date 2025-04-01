@@ -1,5 +1,19 @@
 from django.db import models
 
+class DriverLog(models.Model):
+    driver_id = models.CharField(max_length=50)  # Unique driver identifier
+    date = models.DateField(auto_now_add=True)  # Log date
+    total_hours = models.FloatField(default=0.0)  # Total driving hours for the day
+    stops = models.IntegerField(default=0)  # Number of stops
+    rest_hours = models.FloatField(default=0.0)  # Total rest time in hours
+    fueling_count = models.IntegerField(default=0)  # Number of fuel stops
+    distance_covered = models.FloatField(default=0.0)  # Distance in miles
+    pickup_time = models.FloatField(default=0.0)  # Pickup time in hours
+    dropoff_time = models.FloatField(default=0.0)  # Drop-off time in hours
+
+    def __str__(self):
+        return f"Driver {self.driver_id} - {self.date}"
+
 
 class TruckStatus(models.TextChoices):
     ACTIVE = "active", "Active"

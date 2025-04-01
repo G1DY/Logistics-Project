@@ -7,8 +7,10 @@ from django.utils.timezone import now
 from .models import Truck, Driver, Trip
 from .serializers import TruckSerializer, DriverSerializer, TripSerializer
 from api.utils.osm import get_route
+from .models import DriverLog
+from .serializers import DriverLogSerializer
 
-
+#--------------route map------------#
 @api_view(['POST'])
 def calculate_route(request):
     try:
@@ -35,8 +37,31 @@ def calculate_route(request):
     except Exception as e:
         print("Exception occurred:", e)
         return Response({"error": str(e)}, status=500)
+#--------------driverLogs-----------------#
+    
+@api_view(['POST'])
+def log_driver_activity(request):
+    """
+    Logs driver activity including stops, rest, fueling, and total driving hours.
+    """
+    serializer = DriverLogSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"message": "Log saved successfully", "log": serializer.data}, status=201)
+    
+    return Response(serializer.errors, status=400)
 
+@api_view(['GET'])
+def get_driver_logs(request, driver_id):
+    """
+    Fetches all logs for a given driver.
+    """
+    logs = DriverLog.objects.filter(driver_id=driver_id).order_by('-date')
+    serializer = DriverLogSerializer(logs, many=True)
+    return Response(serializer.data)
 
+#-------------------truck and Driver API-------------------#
 class TruckViewSet(viewsets.ModelViewSet):
     """Handles CRUD for Trucks."""
     queryset = Truck.objects.all()

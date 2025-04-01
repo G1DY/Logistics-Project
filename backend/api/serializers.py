@@ -1,6 +1,11 @@
 from rest_framework import serializers # type: ignore
 from rest_framework.validators import UniqueValidator # type: ignore
-from .models import Truck, Driver, Trip
+from .models import Truck, Driver, Trip, DriverLog
+
+class DriverLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DriverLog
+        fields = '__all__'
 
 class TruckSerializer(serializers.ModelSerializer):
     class Meta:

@@ -1,97 +1,88 @@
-import { useState, useEffect } from "react";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
+import { useState } from "react";
+import axios from "axios";
+import { Card, CardContent } from "../../Components/ui/card"; // ShadCN UI
+import { Input } from "../../Components/ui/input";
+import { Button } from "../../Components/ui/button";
 
-const DriversDailyLog = () => {
-  const [logData, setLogData] = useState({
-    from: "",
-    carrier: "",
-    homeTerminal: "",
-    mileageToday: "",
-    totalMileage: "",
-    truckTrailer: "",
-    remarks: "",
-    shippingDocs: "",
-    recap: "",
-  });
+interface DriverLog {
+  date: string;
+  total_hours: number;
+  stops: number;
+  rest_hours: number;
+  fueling_count: number;
+  distance_covered: number;
+}
 
-  useEffect(() => {
-    const savedLog = localStorage.getItem("driversDailyLog");
-    if (savedLog) setLogData(JSON.parse(savedLog));
-  }, []);
+const DriverLogList = () => {
+  const [driverId, setDriverId] = useState("");
+  const [logs, setLogs] = useState<DriverLog[]>([]);
+  const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    localStorage.setItem("driversDailyLog", JSON.stringify(logData));
-  }, [logData]);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setLogData({ ...logData, [e.target.name]: e.target.value });
+  const fetchLogs = async () => {
+    try {
+      const response = await axios.get(
+        `http://127.0.0.1:8000/logs/${driverId}/`
+      );
+      setLogs(response.data);
+      if (response.data.length === 0) setMessage("No logs found.");
+    } catch (error) {
+      setMessage("Error fetching logs.");
+    }
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg">
-      <h1 className="text-2xl font-bold mb-4">Driver's Daily Log</h1>
+    <Card className="w-full max-w-lg mx-auto p-4 shadow-lg border border-gray-700">
+      <CardContent>
+        <h2 className="text-lg font-semibold mb-4">View Driver Logs</h2>
+        <div className="flex gap-2">
+          <Input
+            value={driverId}
+            onChange={(e) => setDriverId(e.target.value)}
+            placeholder="Enter Driver ID"
+            required
+            className="border border-gray-500 bg-gray-800 text-gray-500"
+          />
+          <Button
+            onClick={fetchLogs}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            Fetch Logs
+          </Button>
+        </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <Input
-          name="from"
-          value={logData.from}
-          onChange={handleChange}
-          placeholder="From"
-        />
-        <Input
-          name="carrier"
-          value={logData.carrier}
-          onChange={handleChange}
-          placeholder="Name of Carrier"
-        />
-        <Input
-          name="homeTerminal"
-          value={logData.homeTerminal}
-          onChange={handleChange}
-          placeholder="Home Terminal Address"
-        />
-        <Input
-          name="mileageToday"
-          value={logData.mileageToday}
-          onChange={handleChange}
-          placeholder="Total Mileage Today"
-        />
-        <Input
-          name="totalMileage"
-          value={logData.totalMileage}
-          onChange={handleChange}
-          placeholder="Total Miles Driven"
-        />
-        <Input
-          name="truckTrailer"
-          value={logData.truckTrailer}
-          onChange={handleChange}
-          placeholder="Truck/Trailer Number & License"
-        />
-      </div>
+        {message && (
+          <p className="mt-3 text-center text-sm text-gray-700">{message}</p>
+        )}
 
-      <textarea
-        name="remarks"
-        value={logData.remarks}
-        onChange={handleChange}
-        placeholder="Remarks"
-        className="w-full mt-4 p-2 border rounded-md"
-      />
-      <textarea
-        name="shippingDocs"
-        value={logData.shippingDocs}
-        onChange={handleChange}
-        placeholder="Shipping Documents"
-        className="w-full mt-4 p-2 border rounded-md"
-      />
-
-      <div className="flex justify-end mt-4">
-        <Button onClick={() => console.log(logData)}>Save & Submit</Button>
-      </div>
-    </div>
+        {logs.length > 0 && (
+          <div className="mt-4 space-y-2">
+            {logs.map((log, index) => (
+              <Card key={index} className="p-3 border">
+                <p>
+                  <strong>Date:</strong> {log.date}
+                </p>
+                <p>
+                  <strong>Total Hours:</strong> {log.total_hours}
+                </p>
+                <p>
+                  <strong>Stops:</strong> {log.stops}
+                </p>
+                <p>
+                  <strong>Rest Hours:</strong> {log.rest_hours}
+                </p>
+                <p>
+                  <strong>Fuel Stops:</strong> {log.fueling_count}
+                </p>
+                <p>
+                  <strong>Distance:</strong> {log.distance_covered} miles
+                </p>
+              </Card>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
-export default DriversDailyLog;
+
+export default DriverLogList;
