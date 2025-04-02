@@ -14,7 +14,7 @@ from .models import DriverLog
 from .serializers import DriverLogSerializer
 from django.http import JsonResponse
 from rest_framework.response import Response # type: ignore
-
+from rest_framework.test import APIClient # type: ignore
 
 #--------------route map------------#
 @api_view(['POST'])
@@ -65,6 +65,7 @@ def calculate_route(request):
             end_time=dropoff_time,
             status="ongoing"
         )
+        print(f"Fetching logs for driver_id: {driver_id}")
 
         # 📝 Add timestamps, fuel stops, and warning to response
         route_info.update({
@@ -75,6 +76,26 @@ def calculate_route(request):
             "warning": warning_message,  # Warning for excessive fuel stops
             "trip_id": trip.id
         })
+
+        # Log driver activity via API call to log_driver_activity endpoint
+        client = APIClient()
+        driver_log_data = {
+            "driver_id": driver_id,
+            "hours_worked": route_info["duration"] / 60,  # Convert minutes to hours
+            "pickup_time": pickup_time.strftime("%Y-%m-%d %H:%M:%S"),
+            "dropoff_time": dropoff_time.strftime("%Y-%m-%d %H:%M:%S"),
+            "distance_covered": route_info["distance"],
+            "fueling_count": fueling_count,
+            "fuel_stop_locations": fuel_stop_locations,
+            "log_date": timezone.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        response = client.post("/api/log_driver_activity/", driver_log_data)
+
+        # Check response status and log appropriately
+        if response.status_code != 201:
+            print(f"Error logging driver activity: {response.data}")
+            return Response({"error": "Failed to log driver activity"}, status=500)
+
 
         return Response(route_info)
 
