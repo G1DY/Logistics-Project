@@ -74,6 +74,7 @@ const TruckSignUp = () => {
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
           </select>
+          <br />
           <Button
             onClick={handleSubmit}
             className="bg-blue-600 hover:bg-blue-700 text-white"

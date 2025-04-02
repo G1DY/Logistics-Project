@@ -4,6 +4,7 @@ import DriversDailyLog from "./Components/DriversDailyLog/DriversDailyLog";
 import TripDetailsForm from "./Components/TripDetails/TripDetailsForm";
 import TruckRegistrationForm from "./Components/Registration/TruckRegistrationForm";
 import SignUp from "./Components/User/SignUp";
+import Login from "./Components/User/Login";
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
             element={<TruckRegistrationForm />}
           />
           <Route path="/SignUp" element={<SignUp />} />
+          <Route path="/Login" element={<Login />} />
         </Routes>
       </Layout>
     </Router>

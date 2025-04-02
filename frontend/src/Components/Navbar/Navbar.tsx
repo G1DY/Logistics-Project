@@ -17,6 +17,9 @@ const Navbar = () => {
         <Link to="/TruckRegistrationForm" className="hover:underline">
           TrucksForm
         </Link>
+        <Link to="/Login" className="hover:underline">
+          Login
+        </Link>
       </div>
     </nav>
   );
