@@ -7,6 +7,8 @@ const Navbar = () => {
   return (
     <nav className="bg-gray-800 text-white p-4 flex justify-between items-center shadow-md fixed top-0 w-full z-50 overflow-hidden">
       <div className="text-xl font-semibold tracking-wide">Driver's Log</div>
+
+      {/* Desktop Links */}
       <div className="hidden md:flex gap-6 items-center">
         <Link
           to="/DriversDailyLog"
@@ -50,30 +52,42 @@ const Navbar = () => {
       {/* Mobile Dropdown Menu */}
       {isOpen && (
         <div className="md:hidden absolute top-16 left-0 w-full bg-gray-800 text-white p-4">
-          <Link
-            to="/DriversDailyLog"
-            className="block py-2 text-lg hover:text-blue-400"
-          >
-            Home
-          </Link>
-          <Link
-            to="/TripDetailsForm"
-            className="block py-2 text-lg hover:text-blue-400"
-          >
-            TripMap
-          </Link>
-          <Link to="/SignUp" className="block py-2 text-lg hover:text-blue-400">
-            SignUp
-          </Link>
-          <Link
-            to="/TruckRegistrationForm"
-            className="block py-2 text-lg hover:text-blue-400"
-          >
-            TrucksForm
-          </Link>
-          <Link to="/Login" className="block py-2 text-lg hover:text-blue-400">
-            Login
-          </Link>
+          <ul className="space-y-4">
+            <li>
+              <Link
+                to="/DriversDailyLog"
+                className="block text-lg hover:text-blue-400"
+              >
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/TripDetailsForm"
+                className="block text-lg hover:text-blue-400"
+              >
+                TripMap
+              </Link>
+            </li>
+            <li>
+              <Link to="/SignUp" className="block text-lg hover:text-blue-400">
+                SignUp
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/TruckRegistrationForm"
+                className="block text-lg hover:text-blue-400"
+              >
+                TrucksForm
+              </Link>
+            </li>
+            <li>
+              <Link to="/Login" className="block text-lg hover:text-blue-400">
+                Login
+              </Link>
+            </li>
+          </ul>
         </div>
       )}
     </nav>
