@@ -7,7 +7,7 @@ import DriversDailyLog from "../Pages/DriversDailyLog";
 
 const AppRoutes = () => (
   <Routes>
-    <Route path="/" element={<DriversDailyLog />} />
+    <Route path="/DriversDailyLog" element={<DriversDailyLog />} />
     <Route path="/TruckRegistrationForm" element={<TruckRegistrationForm />} />
     <Route path="/TripDetailsForm" element={<TripDetailsForm />} />
     <Route path="/Signup" element={<SignUp />} />
