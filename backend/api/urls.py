@@ -11,5 +11,5 @@ urlpatterns = [
     path('calculate_route/', calculate_route, name='calculate_route'),
     path('', include(router.urls)),  # Include all registered viewsets
     path('log/', log_driver_activity, name='log_driver_activity'),
-    path('logs/<str:driver_id>/', get_driver_logs, name='get_driver_logs'),
+    path('driver-logs/<int:driver_id>/', get_driver_logs, name='driver-logs'),
 ]

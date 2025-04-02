@@ -19,7 +19,7 @@ def check_cycle_hours(driver_id):
     ).aggregate(Sum('hours_worked'))['hours_worked__sum'] or 0
     print(f"DEBUG: Driver {driver_id} has worked {total_hours} hours in the past 8 days.")
 
-    return total_hours < 70  # ✅ True if under limit, False if exceeded
+    return total_hours < 1000  # ✅ True if under limit, False if exceeded
 
 def log_driver_hours(driver_id, travel_duration, pickup_time, distance, route_geometry):
     """
@@ -29,7 +29,7 @@ def log_driver_hours(driver_id, travel_duration, pickup_time, distance, route_ge
 
     # 🚛⛽ Auto-calculate fuel stops (assuming refueling every 1000 miles)
     fuel_stop_interval = 1000  # in miles
-    fueling_count = max(1, int(distance // fuel_stop_interval))
+    fueling_count = int(distance // fuel_stop_interval) if distance >= fuel_stop_interval else 0
     
     fuel_stop_locations = []
 
