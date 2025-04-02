@@ -17,6 +17,11 @@ class DriverSerializer(serializers.ModelSerializer):
         model = Driver
         fields = ['id', 'name', 'phone_number', 'email', 'assigned_truck']
 
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        driver = Driver.objects.create_driver(**validated_data, password=password)
+        return driver
+
 
 # Driver Log Serializer
 class DriverLogSerializer(serializers.ModelSerializer):

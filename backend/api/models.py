@@ -23,6 +23,11 @@ class Driver(models.Model):
     phone_number = models.CharField(max_length=15, unique=True)
     email = models.EmailField(unique=True, db_index=True)
     assigned_truck = models.OneToOneField(Truck, on_delete=models.SET_NULL, null=True, blank=True)
+    # Required fields for AbstractBaseUser
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['name', 'phone_number']
+
+    objects = DriverManager() # type: ignore
 
     def __str__(self):
         return self.name
