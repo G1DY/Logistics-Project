@@ -9,7 +9,7 @@ export const getCoordinates = async (location: string) => {
           q: location,
           format: "json",
           limit: 1,
-          countrycodes: "us", // Restrict to USA (modify if needed)
+          countrycodes: "ke", // Restrict to USA (modify if needed)
         },
       }
     );
