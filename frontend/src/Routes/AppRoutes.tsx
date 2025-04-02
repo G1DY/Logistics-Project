@@ -4,14 +4,15 @@ import TruckRegistrationForm from "../Pages/TruckRegistrationForm";
 import SignUp from "../Pages/SignUp";
 import Login from "../Pages/Login";
 import TripDetailsForm from "../Pages/TripDetailsForm";
+import DriversDailyLog from "../Pages/DriversDailyLog";
 
 const AppRoutes = () => (
   <Routes>
-    <Route path="/" element={<Home />} />
-    <Route path="/truck-registration" element={<TruckRegistrationForm />} />
-    <Route path="/trip-details" element={<TripDetailsForm />} />
-    <Route path="/signup" element={<SignUp />} />
-    <Route path="/login" element={<Login />} />
+    <Route path="/" element={<DriversDailyLog />} />
+    <Route path="/TruckRegistrationForm " element={<TruckRegistrationForm />} />
+    <Route path="/TripDetailsForm" element={<TripDetailsForm />} />
+    <Route path="/Signup" element={<SignUp />} />
+    <Route path="/Login" element={<Login />} />
     <Route path="*" element={<h1>404 Not Found</h1>} />
   </Routes>
 );
