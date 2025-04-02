@@ -1,26 +1,81 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
     <nav className="bg-gray-800 text-white p-4 flex justify-between items-center shadow-md fixed top-0 w-full z-50 overflow-hidden">
-      <div className="text-lg font-bold">Driver's Log</div>
-      <div className="flex gap-4">
-        <Link to="/DriversDailyLog" className="hover:underline">
+      <div className="text-xl font-semibold tracking-wide">Driver's Log</div>
+      <div className="hidden md:flex gap-6 items-center">
+        <Link
+          to="/DriversDailyLog"
+          className="text-lg hover:text-blue-400 transition duration-200 ease-in-out"
+        >
           Home
         </Link>
-        <Link to="/TripDetailsForm" className="hover:underline">
+        <Link
+          to="/TripDetailsForm"
+          className="text-lg hover:text-blue-400 transition duration-200 ease-in-out"
+        >
           TripMap
         </Link>
-        <Link to="/SignUp" className="hover:underline">
+        <Link
+          to="/SignUp"
+          className="text-lg hover:text-blue-400 transition duration-200 ease-in-out"
+        >
           SignUp
         </Link>
-        <Link to="/TruckRegistrationForm" className="hover:underline">
+        <Link
+          to="/TruckRegistrationForm"
+          className="text-lg hover:text-blue-400 transition duration-200 ease-in-out"
+        >
           TrucksForm
         </Link>
-        <Link to="/Login" className="hover:underline">
+        <Link
+          to="/Login"
+          className="text-lg hover:text-blue-400 transition duration-200 ease-in-out"
+        >
           Login
         </Link>
       </div>
+
+      {/* Mobile Hamburger Menu */}
+      <div className="md:hidden">
+        <button onClick={() => setIsOpen(!isOpen)} className="text-2xl">
+          {isOpen ? "X" : "☰"}
+        </button>
+      </div>
+
+      {/* Mobile Dropdown Menu */}
+      {isOpen && (
+        <div className="md:hidden absolute top-16 left-0 w-full bg-gray-800 text-white p-4">
+          <Link
+            to="/DriversDailyLog"
+            className="block py-2 text-lg hover:text-blue-400"
+          >
+            Home
+          </Link>
+          <Link
+            to="/TripDetailsForm"
+            className="block py-2 text-lg hover:text-blue-400"
+          >
+            TripMap
+          </Link>
+          <Link to="/SignUp" className="block py-2 text-lg hover:text-blue-400">
+            SignUp
+          </Link>
+          <Link
+            to="/TruckRegistrationForm"
+            className="block py-2 text-lg hover:text-blue-400"
+          >
+            TrucksForm
+          </Link>
+          <Link to="/Login" className="block py-2 text-lg hover:text-blue-400">
+            Login
+          </Link>
+        </div>
+      )}
     </nav>
   );
 };
