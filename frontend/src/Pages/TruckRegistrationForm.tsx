@@ -4,7 +4,7 @@ import { Card, CardContent } from "../Components/ui/card";
 import { Input } from "../Components/ui/input";
 import { Button } from "../Components/ui/button";
 
-const TruckSignUp = () => {
+const TruckRegistrationForm = () => {
   const [licensePlate, setLicensePlate] = useState("");
   const [model, setModel] = useState("");
   const [capacity, setCapacity] = useState(0);
@@ -89,4 +89,4 @@ const TruckSignUp = () => {
   );
 };
 
-export default TruckSignUp;
+export default TruckRegistrationForm;

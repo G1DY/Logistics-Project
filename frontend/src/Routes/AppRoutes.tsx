@@ -1,5 +1,4 @@
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Home from "../Pages/DriversDailyLog";
+import { Route, Routes } from "react-router-dom";
 import TruckRegistrationForm from "../Pages/TruckRegistrationForm";
 import SignUp from "../Pages/SignUp";
 import Login from "../Pages/Login";
@@ -9,7 +8,7 @@ import DriversDailyLog from "../Pages/DriversDailyLog";
 const AppRoutes = () => (
   <Routes>
     <Route path="/" element={<DriversDailyLog />} />
-    <Route path="/TruckRegistrationForm " element={<TruckRegistrationForm />} />
+    <Route path="/TruckRegistrationForm" element={<TruckRegistrationForm />} />
     <Route path="/TripDetailsForm" element={<TripDetailsForm />} />
     <Route path="/Signup" element={<SignUp />} />
     <Route path="/Login" element={<Login />} />
