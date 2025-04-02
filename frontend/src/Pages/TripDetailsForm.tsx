@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
+import { Input } from "../Components/ui/input";
+import { Button } from "../Components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import RouteMap from "../RouteMap/RouteMap";

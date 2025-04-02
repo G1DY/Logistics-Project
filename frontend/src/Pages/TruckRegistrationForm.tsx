@@ -1,8 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
-import { Card, CardContent } from "../../Components/ui/card";
-import { Input } from "../../Components/ui/input";
-import { Button } from "../../Components/ui/button";
+import { Card, CardContent } from "../Components/ui/card";
+import { Input } from "../Components/ui/input";
+import { Button } from "../Components/ui/button";
 
 const TruckSignUp = () => {
   const [licensePlate, setLicensePlate] = useState("");

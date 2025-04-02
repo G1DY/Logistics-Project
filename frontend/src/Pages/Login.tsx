@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
-import { Input } from "../../Components/ui/input";
-import { Button } from "../../Components/ui/button";
+import { Input } from "../Components/ui/input";
+import { Button } from "../Components/ui/button";
 
 const Login = () => {
   const [username, setUsername] = useState("");

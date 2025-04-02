@@ -6,7 +6,7 @@ const Navbar = () => {
 
   return (
     <nav
-      className=" text-white p-4 flex justify-between items-center shadow-md fixed top-0 w-full z-50 overflow-hidden"
+      className="bg-gray-800 text-white p-4 flex justify-between items-center shadow-md fixed top-0 w-full z-50 overflow-hidden"
       style={{ backgroundImage: `url(${bgImage})`, backgroundSize: "cover" }}
     >
       <div className="text-xl font-semibold tracking-wide">Driver's Log</div>

@@ -9,11 +9,11 @@ import {
 } from "react-leaflet";
 import { LatLngTuple } from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { getCoordinates } from "../../lib/geocode";
+import { getCoordinates } from "../lib/geocode";
 import axios from "axios";
 import L from "leaflet";
-import { Card, CardContent } from "../../Components/ui/card"; // ShadCN UI
-import { ScrollArea } from "../../Components/ui/scroll-area"; // For smooth scrolling
+import { Card, CardContent } from "../Components/ui/card"; // ShadCN UI
+import { ScrollArea } from "../Components/ui/scroll-area"; // For smooth scrolling
 import { Loader2 } from "lucide-react"; // For loading state
 import bgImage from "../../Assets/patrick-tomasso-5hvn-2WW6rY-unsplash.jpg";
 

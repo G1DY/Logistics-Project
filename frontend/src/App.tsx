@@ -1,10 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./Components/Layout";
-import DriversDailyLog from "./Components/DriversDailyLog/DriversDailyLog";
-import TripDetailsForm from "./Components/TripDetails/TripDetailsForm";
-import TruckRegistrationForm from "./Components/Registration/TruckRegistrationForm";
-import SignUp from "./Components/User/SignUp";
-import Login from "./Components/User/Login";
+import DriversDailyLog from "./Pages/DriversDailyLog";
+import TripDetailsForm from "./Pages/TripDetailsForm";
+import TruckRegistrationForm from "./Pages/TruckRegistrationForm";
+import SignUp from "./Pages/SignUp";
+import Login from "./Pages/Login";
 
 const App = () => {
   return (
