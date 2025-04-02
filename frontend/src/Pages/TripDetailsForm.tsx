@@ -4,7 +4,7 @@ import { Input } from "../Components/ui/input";
 import { Button } from "../Components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import RouteMap from "../RouteMap/RouteMap";
+import RouteMap from "./RouteMap";
 
 const tripSchema = z.object({
   pickupLocation: z.string().min(1, "Required"),

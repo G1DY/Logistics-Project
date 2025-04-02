@@ -15,7 +15,6 @@ import L from "leaflet";
 import { Card, CardContent } from "../Components/ui/card"; // ShadCN UI
 import { ScrollArea } from "../Components/ui/scroll-area"; // For smooth scrolling
 import { Loader2 } from "lucide-react"; // For loading state
-import bgImage from "../../Assets/patrick-tomasso-5hvn-2WW6rY-unsplash.jpg";
 
 interface RouteMapProps {
   pickup: string;
@@ -118,10 +117,7 @@ const RouteMap = ({ pickup, dropoff }: RouteMapProps) => {
   }, [fetchCoordinatesAndRoute]);
 
   return (
-    <div
-      className="flex flex-col items-center space-y-6 w-full max-w-4xl mx-auto"
-      style={{ backgroundImage: `url(${bgImage})`, backgroundSize: "cover" }}
-    >
+    <div className="flex flex-col items-center space-y-6 w-full max-w-4xl mx-auto">
       <div className="w-full h-[500px] relative rounded-lg overflow-hidden shadow-lg border border-gray-200">
         {error && <p className="text-center text-red-500">{error}</p>}
 
