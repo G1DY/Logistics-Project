@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 class TruckStatus(models.TextChoices):
     ACTIVE = "active", "Active"
@@ -18,6 +19,22 @@ class Truck(models.Model):
     def __str__(self):
         return f"{self.model} - {self.license_plate}"
 
+class Driver(AbstractBaseUser):
+    phone_number = models.CharField(max_length=15, unique=True)
+    assigned_truck = models.ForeignKey('Truck', on_delete=models.SET_NULL, null=True, blank=True)
+    
+    def __str__(self):
+        return self.username
+
+class DriverManager(BaseUserManager):
+    def create_driver(self, name, phone_number, email, password=None):
+        if not email:
+            raise ValueError('The Email field must be set')
+        driver = self.model(name=name, phone_number=phone_number, email=email)
+        driver.set_password(password)  # Hashing the password
+        driver.save(using=self._db)
+        return driver
+
 class Driver(models.Model):
     name = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=15, unique=True)
@@ -27,7 +44,7 @@ class Driver(models.Model):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name', 'phone_number']
 
-    objects = DriverManager() # type: ignore
+    objects = DriverManager()
 
     def __str__(self):
         return self.name

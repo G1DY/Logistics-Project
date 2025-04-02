@@ -1,12 +1,24 @@
 from rest_framework import serializers # type: ignore
 from rest_framework.validators import UniqueValidator # type: ignore
 from .models import Truck, Driver, Trip, DriverLog
+from django.contrib.auth import authenticate
 
 # Truck Serializer
 class TruckSerializer(serializers.ModelSerializer):
     class Meta:
         model = Truck
         fields = ['id', 'license_plate', 'model', 'capacity', 'status']
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(write_only=True, required=True)
+
+    def validate(self, data):
+        user = authenticate(username=data['username'], password=data['password'])
+        if not user:
+            raise serializers.ValidationError('Invalid credentials')
+        return user
 
 
 # Driver Serializer

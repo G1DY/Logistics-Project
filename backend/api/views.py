@@ -8,13 +8,28 @@ from rest_framework import viewsets # type: ignore
 from django.utils.timezone import now
 from django.utils import timezone
 from .models import Truck, Driver, Trip
-from .serializers import TruckSerializer, DriverSerializer, TripSerializer
+from .serializers import LoginSerializer, TruckSerializer, DriverSerializer, TripSerializer
 from api.utils.route_utils import get_route
 from .models import DriverLog
 from .serializers import DriverLogSerializer
 from django.http import JsonResponse
 from rest_framework.response import Response # type: ignore
 from rest_framework.test import APIClient # type: ignore
+from rest_framework.permissions import AllowAny # type: ignore
+from rest_framework.authtoken.models import Token # type: ignore
+from rest_framework.views import APIView # type: ignore
+
+
+class LoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.validated_data
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({'token': token.key})
+        return Response(serializer.errors, status=400)
 
 #--------------route map------------#
 @api_view(['POST'])
