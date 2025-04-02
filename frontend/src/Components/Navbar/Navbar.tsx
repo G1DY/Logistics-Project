@@ -9,11 +9,14 @@ const Navbar = () => {
           Home
         </Link>
         <Link to="/TripDetailsForm" className="hover:underline">
-          Log Form
+          TripMap
         </Link>
-        {/* <Link to="/test-map" className="hover:underline">
-          RoutesMap
-        </Link> */}
+        <Link to="/SignUp" className="hover:underline">
+          SignUp
+        </Link>
+        <Link to="/TruckRegistrationForm" className="hover:underline">
+          TrucksForm
+        </Link>
       </div>
     </nav>
   );
