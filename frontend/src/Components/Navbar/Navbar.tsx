@@ -1,11 +1,14 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
-
+import bgImage from "../../Assets/avi-richards-pdrckQDTxWY-unsplash.jpg";
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="bg-gray-800 text-white p-4 flex justify-between items-center shadow-md fixed top-0 w-full z-50 overflow-hidden">
+    <nav
+      className=" text-white p-4 flex justify-between items-center shadow-md fixed top-0 w-full z-50 overflow-hidden"
+      style={{ backgroundImage: `url(${bgImage})`, backgroundSize: "cover" }}
+    >
       <div className="text-xl font-semibold tracking-wide">Driver's Log</div>
 
       {/* Desktop Links */}
