@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter # type: ignore
-from .views import calculate_route, TruckViewSet, DriverViewSet, TripViewSet, log_driver_activity, get_driver_logs
+from .views import LoginView, calculate_route, TruckViewSet, DriverViewSet, TripViewSet, log_driver_activity, get_driver_logs
 
 router = DefaultRouter()
 router.register(r'trucks', TruckViewSet)
@@ -12,4 +12,5 @@ urlpatterns = [
     path('', include(router.urls)),  # Include all registered viewsets
     path('log/', log_driver_activity, name='log_driver_activity'),
     path('driver-logs/<int:driver_id>/', get_driver_logs, name='driver-logs'),
+    path('login/', LoginView.as_view(), name='login'),
 ]
