@@ -178,6 +178,7 @@ class DriverViewSet(viewsets.ModelViewSet):
     queryset = Driver.objects.all()
     serializer_class = DriverSerializer
     def create(self, request, *args, **kwargs):
+        print("Raw request body:", request.body.decode("utf-8")) 
         print("Received data:", json.dumps(request.data, indent=2))  # Debugging
         serializer = self.get_serializer(data=request.data)
         

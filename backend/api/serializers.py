@@ -28,12 +28,12 @@ class DriverSerializer(serializers.ModelSerializer):
     class Meta:
         model = Driver
         fields = ['id', 'name', 'phone_number', 'email', "password", 'assigned_truck']
+        extra_kwargs = {'password': {'write_only': True}} #hides passwword in response
 
     def create(self, validated_data):
-        password = validated_data.pop('password', None)
-        if password is None:
-            raise serializers.ValidationError({"password": "This field is required."})
-        driver = Driver.objects.create_user(**validated_data, password=password)
+        driver = Driver.objects.create(**validated_data)
+        driver.set_password(validated_data['password'])  # Hash password
+        driver.save()
         return driver
 
 
