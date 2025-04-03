@@ -27,8 +27,8 @@ class LoginView(APIView):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.validated_data
-            token, created = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key})
+            token, _ = Token.objects.get_or_create(user=user)
+            return Response({'token': token.key, 'user_id': user.id, 'email': user.email})
         return Response(serializer.errors, status=400)
 
 #--------------route map------------#
