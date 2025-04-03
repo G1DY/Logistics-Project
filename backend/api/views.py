@@ -18,6 +18,7 @@ from rest_framework.test import APIClient # type: ignore
 from rest_framework.permissions import AllowAny # type: ignore
 from rest_framework.authtoken.models import Token # type: ignore
 from rest_framework.views import APIView # type: ignore
+from rest_framework import status # type: ignore
 
 
 class LoginView(APIView):
@@ -158,7 +159,7 @@ def get_driver_logs(request, driver_id):
 
     serializer = DriverLogSerializer(logs, many=True)
     return Response(serializer.data, status=200)
-#-------------------truck and Driver API-------------------#
+#-------------------truck and Driver viewset-------------------#
 class TruckViewSet(viewsets.ModelViewSet):
     """Handles CRUD for Trucks."""
     queryset = Truck.objects.all()
@@ -176,6 +177,16 @@ class DriverViewSet(viewsets.ModelViewSet):
     """Handles CRUD for Drivers."""
     queryset = Driver.objects.all()
     serializer_class = DriverSerializer
+    def create(self, request, *args, **kwargs):
+        print("Received data:", json.dumps(request.data, indent=2))  # Debugging
+        serializer = self.get_serializer(data=request.data)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        print("Validation errors:", serializer.errors)  # Debugging
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=['GET'])
     def assigned_truck(self, request, pk=None):
