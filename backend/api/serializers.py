@@ -33,7 +33,7 @@ class DriverSerializer(serializers.ModelSerializer):
         password = validated_data.pop('password', None)
         if password is None:
             raise serializers.ValidationError({"password": "This field is required."})
-        driver = Driver.objects.create_driver(**validated_data, password=password)
+        driver = Driver.objects.create_user(**validated_data, password=password)
         return driver
 
 
