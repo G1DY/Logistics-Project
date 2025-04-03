@@ -1,4 +1,4 @@
-from geopy.distance import geodesic
+from geopy.distance import geodesic # type: ignore
 
 def get_location_at_distance(route_geometry, distance):
     """

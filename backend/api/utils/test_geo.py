@@ -1,4 +1,4 @@
-from geopy.distance import geodesic
+from geopy.distance import geodesic # type: ignore
 
 def test_geopy_distance():
     pickup_coords = (34.0522, -118.2437)  # Example: Los Angeles coordinates
