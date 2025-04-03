@@ -35,19 +35,28 @@ const DriverSignUp = () => {
     };
 
     setIsSubmitting(true);
+    console.log("Sending data:", newDriver); //debugger
 
     try {
       const response = await axios.post(
         "http://127.0.0.1:8000/drivers/", // Ensure this is the correct API endpoint for driver registration
-        newDriver
+        newDriver,
+        {
+          headers: {
+            "Content-Type": "application/json", // Ensure the data is sent as JSON
+          },
+        }
       );
       if (response.status === 201) {
         setMessage("Driver registered successfully!");
         // After successful registration, redirect to truck registration page
         navigate("/truck-registration");
       }
-    } catch (error) {
-      setMessage("Error registering driver. Please try again.");
+    } catch (error: any) {
+      console.error("API error:", error.response?.data); // Show actual error
+      setMessage(
+        JSON.stringify(error.response?.data) || "Error registering driver."
+      );
     } finally {
       setIsSubmitting(false);
     }
