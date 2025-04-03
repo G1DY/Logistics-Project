@@ -3,6 +3,7 @@ import axios from "axios";
 import { Card, CardContent } from "../Components/ui/card";
 import { Input } from "../Components/ui/input";
 import { Button } from "../Components/ui/button";
+import { useNavigate } from "react-router-dom"; // Importing useNavigate
 
 const DriverSignUp = () => {
   const [name, setName] = useState("");
@@ -12,6 +13,8 @@ const DriverSignUp = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const navigate = useNavigate(); // Initialize useNavigate for navigation
 
   const handleSubmit = async () => {
     if (!name || !phoneNumber || !email || !password || !confirmPassword) {
@@ -35,11 +38,13 @@ const DriverSignUp = () => {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/drivers/",
+        "http://127.0.0.1:8000/drivers/", // Ensure this is the correct API endpoint for driver registration
         newDriver
       );
       if (response.status === 201) {
         setMessage("Driver registered successfully!");
+        // After successful registration, redirect to truck registration page
+        navigate("/truck-registration");
       }
     } catch (error) {
       setMessage("Error registering driver. Please try again.");
