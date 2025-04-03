@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
+
 class TruckStatus(models.TextChoices):
     ACTIVE = "active", "Active"
     INACTIVE = "inactive", "Inactive"
@@ -18,36 +19,45 @@ class Truck(models.Model):
 
     def __str__(self):
         return f"{self.model} - {self.license_plate}"
-
-class Driver(AbstractBaseUser):
-    phone_number = models.CharField(max_length=15, unique=True)
-    assigned_truck = models.ForeignKey('Truck', on_delete=models.SET_NULL, null=True, blank=True)
     
-    def __str__(self):
-        return self.username
 
 class DriverManager(BaseUserManager):
-    def create_driver(self, name, phone_number, email, password=None):
+    def create_user(self, email, name, phone_number, password=None):
         if not email:
             raise ValueError('The Email field must be set')
-        driver = self.model(name=name, phone_number=phone_number, email=email)
-        driver.set_password(password)  # Hashing the password
+        driver = self.model(email=self.normalize_email(email), name=name, phone_number=phone_number)
+        driver.set_password(password)  # Hash the password
         driver.save(using=self._db)
         return driver
 
-class Driver(models.Model):
+    def create_superuser(self, email, name, phone_number, password):
+        driver = self.create_user(email, name, phone_number, password)
+        driver.is_admin = True
+        driver.save(using=self._db)
+        return driver
+    
+
+class Driver(AbstractBaseUser):
     name = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=15, unique=True)
     email = models.EmailField(unique=True, db_index=True)
-    assigned_truck = models.OneToOneField(Truck, on_delete=models.SET_NULL, null=True, blank=True)
-    # Required fields for AbstractBaseUser
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['name', 'phone_number']
+    assigned_truck = models.OneToOneField('Truck', on_delete=models.SET_NULL, null=True, blank=True)
+
+    is_active = models.BooleanField(default=True)
+    is_admin = models.BooleanField(default=False)  # Required for Django admin access
 
     objects = DriverManager()
 
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['name', 'phone_number']
+
     def __str__(self):
         return self.name
+
+    @property
+    def is_staff(self):
+        return self.is_admin
+    
 
 class DriverLog(models.Model):
     driver = models.ForeignKey(Driver, on_delete=models.CASCADE)   # Unique driver identifier
