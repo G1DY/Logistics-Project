@@ -3,7 +3,8 @@ import axios from "axios";
 import { Card, CardContent } from "../Components/ui/card";
 import { Input } from "../Components/ui/input";
 import { Button } from "../Components/ui/button";
-import { useNavigate } from "react-router-dom"; // Importing useNavigate
+import { useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react"; // Importing spinner from lucide-react
 
 const DriverSignUp = () => {
   const [name, setName] = useState("");
@@ -14,46 +15,65 @@ const DriverSignUp = () => {
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const navigate = useNavigate(); // Initialize useNavigate for navigation
+  const navigate = useNavigate();
 
-  const handleSubmit = async () => {
+  const validateForm = () => {
+    // Simple client-side validation
     if (!name || !phoneNumber || !email || !password || !confirmPassword) {
       setMessage("Please fill in all fields.");
-      return;
+      return false;
     }
 
     if (password !== confirmPassword) {
       setMessage("Passwords do not match.");
-      return;
+      return false;
     }
 
-    const newDriver = {
-      name,
-      phone_number: phoneNumber,
-      email,
-      password,
-    };
+    // Basic phone number validation (could be improved)
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(phoneNumber)) {
+      setMessage("Invalid phone number. Must be 10 digits.");
+      return false;
+    }
+
+    // Simple email validation
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      setMessage("Invalid email address.");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
+
+    const newDriver = { name, phone_number: phoneNumber, email, password };
 
     setIsSubmitting(true);
-    console.log("Sending data:", newDriver); //debugger
+    setMessage(""); // Clear previous message
 
     try {
+      const token = localStorage.getItem("access_token");
       const response = await axios.post(
-        "http://127.0.0.1:8000/drivers/", // Ensure this is the correct API endpoint for driver registration
+        "http://127.0.0.1:8000/drivers/",
         newDriver,
         {
           headers: {
-            "Content-Type": "application/json", // Ensure the data is sent as JSON
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : "",
           },
         }
       );
+
       if (response.status === 201) {
         setMessage("Driver registered successfully!");
         // After successful registration, redirect to truck registration page
-        navigate("/truck-registration");
+        setTimeout(() => navigate("/TruckRegistrationForm"), 2000); // Delay for success message display
       }
     } catch (error: any) {
-      console.error("API error:", error.response?.data); // Show actual error
+      console.error("API error:", error.response?.data);
       setMessage(
         JSON.stringify(error.response?.data) || "Error registering driver."
       );
@@ -105,9 +125,23 @@ const DriverSignUp = () => {
             className="bg-blue-600 hover:bg-blue-700 text-white"
             disabled={isSubmitting}
           >
+            {isSubmitting ? (
+              <Loader2 className="animate-spin mr-2" />
+            ) : (
+              "Register Driver"
+            )}
             {isSubmitting ? "Submitting..." : "Register Driver"}
           </Button>
-          {message && <p className="text-sm text-gray-700 mt-4">{message}</p>}
+
+          {message && (
+            <p
+              className={`text-sm mt-4 ${
+                message.includes("Error") ? "text-red-600" : "text-green-600"
+              }`}
+            >
+              {message}
+            </p>
+          )}
         </div>
       </CardContent>
     </Card>
