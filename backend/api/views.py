@@ -20,6 +20,7 @@ from rest_framework.views import APIView # type: ignore
 from rest_framework.response import Response # type: ignore
 import logging
 from rest_framework import status, permissions # type: ignore
+from rest_framework.permissions import AllowAny # type: ignore
 
 
 class DriverLoginView(APIView):
@@ -191,6 +192,7 @@ class TruckViewSet(viewsets.ModelViewSet):
 
 
 class DriverViewSet(viewsets.ModelViewSet):
+    permission_classes = [AllowAny]
     """Handles CRUD for Drivers."""
     queryset = Driver.objects.all()
     serializer_class = DriverSerializer
