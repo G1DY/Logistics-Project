@@ -15,7 +15,7 @@ urlpatterns = [
     path('', include(router.urls)),  # Include all registered viewsets
     path('log/', log_driver_activity, name='log_driver_activity'),
     path('driver-logs/<int:driver_id>/', get_driver_logs, name='driver-logs'),
-    path('login/', driver_login, name='driver_login'),
-    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Optional
+    # path('login/', driver_login, name='driver_login'),
+    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Optional
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Optional
 ]
