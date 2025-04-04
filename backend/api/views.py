@@ -179,6 +179,7 @@ def get_driver_logs(request, driver_id):
     return Response(serializer.data, status=200)
 #-------------------truck and Driver viewset-------------------#
 class TruckViewSet(viewsets.ModelViewSet):
+    permission_classes = [AllowAny]
     """Handles CRUD for Trucks."""
     queryset = Truck.objects.all()
     serializer_class = TruckSerializer
@@ -189,6 +190,20 @@ class TruckViewSet(viewsets.ModelViewSet):
         active_trucks = Truck.objects.filter(status="active")
         serializer = self.get_serializer(active_trucks, many=True)
         return Response(serializer.data)
+    
+    def perform_create(self, serializer):
+        """
+        Assigns truck to a driver if 'driver_id' is provided in the request.
+        """
+        driver_id = self.request.data.get("driver_id")
+        if driver_id:
+            try:
+                driver = Driver.objects.get(id=driver_id)
+                serializer.save(assigned_driver=driver)
+            except Driver.DoesNotExist:
+                serializer.save()  # fallback if driver not found
+        else:
+            serializer.save()
 
 
 class DriverViewSet(viewsets.ModelViewSet):
@@ -218,6 +233,7 @@ class DriverViewSet(viewsets.ModelViewSet):
 
 
 class TripViewSet(viewsets.ModelViewSet):
+    permission_classes = [AllowAny]
     """Handles CRUD for Trips."""
     queryset = Trip.objects.all()
     serializer_class = TripSerializer
