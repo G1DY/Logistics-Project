@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter # type: ignore
 from .views import calculate_route, TruckViewSet, DriverViewSet, TripViewSet, log_driver_activity, get_driver_logs
 from .views import driver_login
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView # type: ignore
+from .views import CustomTokenObtainPairView, CustomTokenRefreshView, RegisterDriver
 
 
 router = DefaultRouter()
@@ -15,7 +15,7 @@ urlpatterns = [
     path('', include(router.urls)),  # Include all registered viewsets
     path('log/', log_driver_activity, name='log_driver_activity'),
     path('driver-logs/<int:driver_id>/', get_driver_logs, name='driver-logs'),
-    # path('login/', driver_login, name='driver_login'),
-    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Optional
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Optional
+    path('login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('login/refresh/', CustomTokenRefreshView.as_view(), name='token_refresh'),
+    path('register/', RegisterDriver.as_view(), name='register_driver'),
 ]

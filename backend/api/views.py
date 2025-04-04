@@ -16,13 +16,34 @@ from rest_framework.response import Response # type: ignore
 from rest_framework import status # type: ignore
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView # type: ignore
-from rest_framework.permissions import IsAuthenticated # type: ignore
+from rest_framework import permissions
+from django.contrib.auth import get_user_model
+from rest_framework.views import APIView # type: ignore
 from rest_framework.response import Response # type: ignore
 
 
-# Token obtain (login) and refresh endpoints
 class CustomTokenObtainPairView(TokenObtainPairView):
-    permission_classes = [IsAuthenticated]  # Optional, if you want to restrict access
+    # Optionally, you can override the serializer or do custom actions here.
+    pass
+
+
+class CustomTokenRefreshView(TokenRefreshView):
+    pass
+
+
+class RegisterDriver(APIView):
+    def post(self, request):
+        data = request.data
+        try:
+            driver = Driver.objects.create_user(
+                email=data['email'],
+                password=data['password'],
+                name=data['name'],
+                phone_number=data['phone_number'],
+            )
+            return Response({"message": "Driver created successfully"}, status=201)
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
 
 @api_view(['POST'])
 def driver_login(request):
