@@ -192,18 +192,22 @@ class TruckViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
     
     def perform_create(self, serializer):
-        """
-        Assigns truck to a driver if 'driver_id' is provided in the request.
-        """
         driver_id = self.request.data.get("driver_id")
+        truck = serializer.save()  # Save truck first without driver
+
         if driver_id:
             try:
                 driver = Driver.objects.get(id=driver_id)
-                serializer.save(assigned_driver=driver)
+
+                # 🔁 Set both relationships
+                truck.assigned_driver = driver
+                truck.save()
+
+                driver.assigned_truck = truck
+                driver.save()
+
             except Driver.DoesNotExist:
-                serializer.save()  # fallback if driver not found
-        else:
-            serializer.save()
+                pass  # Driver not found, leave truck unassigned
 
 
 class DriverViewSet(viewsets.ModelViewSet):

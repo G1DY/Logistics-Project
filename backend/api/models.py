@@ -9,6 +9,13 @@ class TruckStatus(models.TextChoices):
 
 class Truck(models.Model):
     license_plate = models.CharField(max_length=15, unique=True, db_index=True)
+    assigned_driver = models.ForeignKey(
+    "Driver",
+    on_delete=models.SET_NULL,
+    null=True,
+    blank=True,
+    related_name="trucks"
+)
     model = models.CharField(max_length=50)
     capacity = models.FloatField(help_text="Capacity in tons")
     status = models.CharField(
@@ -16,6 +23,7 @@ class Truck(models.Model):
         choices=TruckStatus.choices,
         default=TruckStatus.ACTIVE
     )
+    
 
     def __str__(self):
         return f"{self.model} - {self.license_plate}"
