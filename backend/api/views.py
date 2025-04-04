@@ -8,7 +8,7 @@ from rest_framework import viewsets # type: ignore
 from django.utils.timezone import now
 from django.utils import timezone
 from .models import Truck, Driver, Trip
-from .serializers import LoginSerializer, TruckSerializer, DriverSerializer, TripSerializer
+from .serializers import CustomTokenObtainPairSerializer, LoginSerializer, TruckSerializer, DriverSerializer, TripSerializer
 from api.utils.route_utils import get_route
 from .models import DriverLog
 from .serializers import DriverLogSerializer
@@ -19,7 +19,12 @@ from rest_framework.permissions import AllowAny # type: ignore
 from rest_framework.authtoken.models import Token # type: ignore
 from rest_framework.views import APIView # type: ignore
 from rest_framework import status # type: ignore
+from rest_framework_simplejwt.tokens import RefreshToken # type: ignore
+from rest_framework_simplejwt.views import TokenObtainPairView # type: ignore
 
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -27,9 +32,10 @@ class LoginView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.validated_data
-            token, _ = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key, 'user_id': user.id, 'email': user.email})
+            driver = serializer.validated_data
+            token, _ = Token.objects.get_or_create(driver=driver)
+            refresh = RefreshToken.for_driver(driver)
+            return Response({'token': token.key, 'refresh_token': str(refresh),'driver_id': driver.id, 'email': driver.email})
         return Response(serializer.errors, status=400)
 
 #--------------route map------------#

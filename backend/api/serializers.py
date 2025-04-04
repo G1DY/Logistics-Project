@@ -2,6 +2,15 @@ from rest_framework import serializers # type: ignore
 from rest_framework.validators import UniqueValidator # type: ignore
 from .models import Truck, Driver, Trip, DriverLog
 from django.contrib.auth import authenticate
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer # type: ignore
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['email'] = user.email  # ✅ Add email to the token
+        return token
 
 # Truck Serializer
 class TruckSerializer(serializers.ModelSerializer):
@@ -11,15 +20,19 @@ class TruckSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
-    email = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
     password = serializers.CharField(write_only=True, required=True)
 
     def validate(self, data):
-        user = authenticate(email=data['email'], password=data['password'])
-        if not user:
-            raise serializers.ValidationError('Invalid credentials')
-        return user
+        email = data.get('email')
+        password = data.get('password')
 
+        # We authenticate using the email field since USERNAME_FIELD is 'email' in the Driver model
+        driver = authenticate(email=email, password=password)
+        if not driver:
+            raise serializers.ValidationError('Invalid credentials')
+        
+        return driver
 
 # Driver Serializer
 class DriverSerializer(serializers.ModelSerializer):
