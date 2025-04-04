@@ -55,14 +55,14 @@ const DriverSignUp = () => {
     setMessage(""); // Clear previous message
 
     try {
-      const token = localStorage.getItem("access_token");
+      // const token = localStorage.getItem("access_token");
       const response = await axios.post(
         "http://127.0.0.1:8000/drivers/",
         newDriver,
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: token ? `Bearer ${token}` : "",
+            // Authorization: token ? `Bearer ${token}` : "",
           },
         }
       );
