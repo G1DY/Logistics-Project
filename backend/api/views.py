@@ -1,5 +1,4 @@
 import json
-from django.shortcuts import render
 from api.utils.drivers_utils import check_cycle_hours, log_driver_hours
 from rest_framework.decorators import api_view, action # type: ignore
 from rest_framework.response import Response # type: ignore
@@ -11,63 +10,43 @@ from .serializers import  TruckSerializer, DriverSerializer, TripSerializer
 from api.utils.route_utils import get_route
 from .models import DriverLog
 from .serializers import DriverLogSerializer
-from django.http import JsonResponse
+from rest_framework_simplejwt.tokens import RefreshToken # type: ignore
 from rest_framework.response import Response # type: ignore
 from rest_framework import status # type: ignore
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView # type: ignore
-from rest_framework import permissions
 from django.contrib.auth import get_user_model
 from rest_framework.views import APIView # type: ignore
 from rest_framework.response import Response # type: ignore
+import logging
+from rest_framework import status, permissions # type: ignore
 
 
-class CustomTokenObtainPairView(TokenObtainPairView):
-    # Optionally, you can override the serializer or do custom actions here.
-    pass
+class DriverLoginView(APIView):
+    permission_classes = [permissions.AllowAny]
 
+    def post(self, request, *args, **kwargs):
+        """
+        Handles driver login and returns JWT token upon successful authentication.
+        """
+        email = request.data.get('email')
+        password = request.data.get('password')
 
-class CustomTokenRefreshView(TokenRefreshView):
-    pass
+        if not email or not password:
+            return Response({"error": "Email and password are required"}, status=400)
 
+        driver = authenticate(request, username=email, password=password)
 
-class RegisterDriver(APIView):
-    def post(self, request):
-        data = request.data
-        try:
-            driver = Driver.objects.create_user(
-                email=data['email'],
-                password=data['password'],
-                name=data['name'],
-                phone_number=data['phone_number'],
-            )
-            return Response({"message": "Driver created successfully"}, status=201)
-        except Exception as e:
-            return Response({"error": str(e)}, status=400)
-
-@api_view(['POST'])
-def driver_login(request):
-    """
-    Handles driver login and returns JWT token upon successful authentication.
-    """
-    email = request.data.get('email')
-    password = request.data.get('password')
-
-    if not email or not password:
-        return Response({"error": "Email and password are required"}, status=400)
-
-    driver = authenticate(request, username=email, password=password)
-
-    if driver is not None:
-        # Login successful, return token
-        from rest_framework_simplejwt.tokens import RefreshToken # type: ignore
-        refresh = RefreshToken.for_user(driver)
-        return Response({
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-        })
-    else:
-        return Response({"error": "Invalid credentials"}, status=401)
+        if driver is not None:
+            # Login successful, return token
+            from rest_framework_simplejwt.tokens import RefreshToken # type: ignore
+            refresh = RefreshToken.for_user(driver)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            })
+        else:
+            return Response({"error": "Invalid credentials"}, status=401)
 
 
 #--------------route map------------#
