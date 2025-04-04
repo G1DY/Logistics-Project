@@ -1,4 +1,3 @@
-from datetime import datetime, timedelta
 import json
 from django.shortcuts import render
 from api.utils.drivers_utils import check_cycle_hours, log_driver_hours
@@ -8,35 +7,47 @@ from rest_framework import viewsets # type: ignore
 from django.utils.timezone import now
 from django.utils import timezone
 from .models import Truck, Driver, Trip
-from .serializers import CustomTokenObtainPairSerializer, LoginSerializer, TruckSerializer, DriverSerializer, TripSerializer
+from .serializers import  TruckSerializer, DriverSerializer, TripSerializer
 from api.utils.route_utils import get_route
 from .models import DriverLog
 from .serializers import DriverLogSerializer
 from django.http import JsonResponse
 from rest_framework.response import Response # type: ignore
-from rest_framework.test import APIClient # type: ignore
-from rest_framework.permissions import AllowAny # type: ignore
-from rest_framework.authtoken.models import Token # type: ignore
-from rest_framework.views import APIView # type: ignore
 from rest_framework import status # type: ignore
-from rest_framework_simplejwt.tokens import RefreshToken # type: ignore
-from rest_framework_simplejwt.views import TokenObtainPairView # type: ignore
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView # type: ignore
+from rest_framework.permissions import IsAuthenticated # type: ignore
+from rest_framework.response import Response # type: ignore
 
 
+# Token obtain (login) and refresh endpoints
 class CustomTokenObtainPairView(TokenObtainPairView):
-    serializer_class = CustomTokenObtainPairSerializer
+    permission_classes = [IsAuthenticated]  # Optional, if you want to restrict access
 
-class LoginView(APIView):
-    permission_classes = [AllowAny]
+@api_view(['POST'])
+def driver_login(request):
+    """
+    Handles driver login and returns JWT token upon successful authentication.
+    """
+    email = request.data.get('email')
+    password = request.data.get('password')
 
-    def post(self, request, *args, **kwargs):
-        serializer = LoginSerializer(data=request.data)
-        if serializer.is_valid():
-            driver = serializer.validated_data
-            token, _ = Token.objects.get_or_create(driver=driver)
-            refresh = RefreshToken.for_driver(driver)
-            return Response({'token': token.key, 'refresh_token': str(refresh),'driver_id': driver.id, 'email': driver.email})
-        return Response(serializer.errors, status=400)
+    if not email or not password:
+        return Response({"error": "Email and password are required"}, status=400)
+
+    driver = authenticate(request, username=email, password=password)
+
+    if driver is not None:
+        # Login successful, return token
+        from rest_framework_simplejwt.tokens import RefreshToken # type: ignore
+        refresh = RefreshToken.for_user(driver)
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        })
+    else:
+        return Response({"error": "Invalid credentials"}, status=401)
+
 
 #--------------route map------------#
 @api_view(['POST'])
