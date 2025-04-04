@@ -1,33 +1,52 @@
-import React, { useState } from "react";
-import { Input, Button, Label, Form } from "../Components/ui";
+import { useState } from "react";
+import { Button, Input, Card } from "../Components/ui"; // Importing ShadCN UI components
+import { SubmitHandler, useForm } from "react-hook-form";
+import { Loader2 } from "lucide-react"; // Importing a spinner from lucide-react
 
-const Login: React.FC = () => {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+interface formData {
+  name: string;
+  email: string;
+  password: string;
+}
+
+const LoginForm = () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset, // Added for resetting form on success
+  } = useForm<formData>();
+
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false); // Added for success state
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit: SubmitHandler<formData> = async (data) => {
     setLoading(true);
     setError(null);
+    setSuccess(false); // Reset success state when trying to login again
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/token/", {
+      const response = await fetch("http://127.0.0.1:8000/login/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(data),
       });
 
       if (response.ok) {
-        const data = await response.json();
-        // Store tokens in localStorage
-        localStorage.setItem("access_token", data.access);
-        localStorage.setItem("refresh_token", data.refresh);
-        // Redirect to the protected route or dashboard
-        window.location.href = "/dashboard"; // Change as needed
+        const responseData = await response.json();
+        localStorage.setItem("access_token", responseData.access);
+        localStorage.setItem("refresh_token", responseData.refresh);
+
+        // Reset form values after successful login
+        reset();
+
+        setSuccess(true); // Set success to true
+        setTimeout(() => {
+          window.location.href = "/dashboard"; // Redirect to the dashboard
+        }, 1500);
       } else {
         const errorData = await response.json();
         setError(errorData.detail || "Login failed");
@@ -42,43 +61,83 @@ const Login: React.FC = () => {
   return (
     <div className="max-w-md mx-auto mt-10">
       <h2 className="text-2xl font-semibold text-center mb-6">Login</h2>
-      <Form onSubmit={handleSubmit}>
-        <FormField>
-          <Label htmlFor="email">Email</Label>
-          <FormControl>
+      <Card className="p-6 bg-white shadow-md">
+        {/* Display success message after login */}
+        {success && (
+          <div className="text-center text-green-600 mb-4">
+            <p>Login successful! Redirecting...</p>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Email
+            </label>
             <Input
               id="email"
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
-              required
+              className="mt-2"
+              {...register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                  message: "Invalid email",
+                },
+              })}
             />
-          </FormControl>
-        </FormField>
+            {errors.email && (
+              <p className="text-sm text-red-600">{errors.email.message}</p>
+            )}
+          </div>
 
-        <FormField className="mt-4">
-          <Label htmlFor="password">Password</Label>
-          <FormControl>
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Password
+            </label>
             <Input
               id="password"
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
-              required
+              className="mt-2"
+              {...register("password", { required: "Password is required" })}
             />
-          </FormControl>
-        </FormField>
+            {errors.password && (
+              <p className="text-sm text-red-600">{errors.password.message}</p>
+            )}
+          </div>
 
-        {error && <div className="mt-2 text-red-600 text-sm">{error}</div>}
+          {error && <div className="mt-2 text-red-600 text-sm">{error}</div>}
 
-        <Button type="submit" className="w-full mt-6" disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
-        </Button>
-      </Form>
+          {/* Forgot Password Link */}
+          <div className="text-sm text-right">
+            <a
+              href="/forgot-password"
+              className="text-blue-600 hover:underline"
+            >
+              Forgot Password?
+            </a>
+          </div>
+
+          <Button type="submit" className="w-full mt-4" disabled={loading}>
+            {loading ? (
+              <Loader2 className="animate-spin mr-2" /> // Show spinner during loading
+            ) : (
+              "Login"
+            )}
+            {loading ? "Logging in..." : "Login"}
+          </Button>
+        </form>
+      </Card>
     </div>
   );
 };
 
-export default Login;
+export default LoginForm;
