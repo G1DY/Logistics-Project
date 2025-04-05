@@ -1,5 +1,12 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { Avatar, AvatarFallback } from "../Components/ui";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "../Components/ui";
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -89,6 +96,20 @@ const Navbar = () => {
           </ul>
         </div>
       )}
+      <div>
+        {/* Right side profile dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Avatar className="cursor-pointer h-8 w-8">
+              <AvatarFallback>JD</AvatarFallback>
+            </Avatar>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem>Profile</DropdownMenuItem>
+            <DropdownMenuItem>Logout</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </nav>
   );
 };
