@@ -83,9 +83,9 @@ const DriverSignUp = () => {
   };
 
   return (
-    <Card className="w-full max-w-3xl mx-auto p-4 shadow-lg border border-gray-700">
+    <Card className="w-full max-w-3xl mx-auto mt-16 p-4 shadow-lg border border-gray-700">
       <CardContent>
-        <h2 className="text-lg font-semibold mb-4 text-white">
+        <h2 className="text-lg items-center text-center font-semibold mb-4 text-white">
           Driver Registration
         </h2>
         <div className="space-y-4">

@@ -29,24 +29,24 @@ const Navbar = () => {
         >
           TripMap
         </Link>
-        <Link
+        {/* <Link
           to="/SignUp"
           className="text-lg hover:text-blue-400 transition duration-200 ease-in-out"
         >
           SignUp
-        </Link>
+        </Link> */}
         <Link
           to="/TruckRegistrationForm"
           className="text-lg hover:text-blue-400 transition duration-200 ease-in-out"
         >
           TrucksForm
         </Link>
-        <Link
+        {/* <Link
           to="/Login"
           className="text-lg hover:text-blue-400 transition duration-200 ease-in-out"
         >
           Login
-        </Link>
+        </Link> */}
       </div>
 
       {/* Mobile Hamburger Menu */}

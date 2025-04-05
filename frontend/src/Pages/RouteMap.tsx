@@ -117,7 +117,7 @@ const RouteMap = ({ pickup, dropoff }: RouteMapProps) => {
   }, [fetchCoordinatesAndRoute]);
 
   return (
-    <div className="flex flex-col items-center space-y-6 w-full max-w-4xl mx-auto">
+    <div className="flex flex-col items-center space-y-6 w-full max-w-4xl mx-auto mt-16">
       <div className="w-full h-[500px] relative rounded-lg overflow-hidden shadow-lg border border-gray-200">
         {error && <p className="text-center text-red-500">{error}</p>}
 

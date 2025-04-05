@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Button, Input, Card } from "../Components/ui";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { Loader2 } from "lucide-react";
+import { Link, Loader2 } from "lucide-react";
 import { useAuth } from "../Context/AuthContext"; // Importing useAuth
+import { useNavigate } from "react-router-dom";
 
 interface formData {
   name: string;
@@ -15,6 +16,7 @@ const LoginForm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
 
   const {
     register,
@@ -44,7 +46,7 @@ const LoginForm = () => {
         reset();
         setSuccess(true);
         setTimeout(() => {
-          window.location.href = "/dashboard"; // Redirect to dashboard
+          navigate("/dashboard"); // Use navigate to redirect to dashboard
         }, 1500);
       } else {
         const errorData = await response.json();
@@ -59,8 +61,10 @@ const LoginForm = () => {
 
   return (
     <div className="max-w-md mx-auto mt-10">
-      <h2 className="text-2xl font-semibold text-center mb-6">Login</h2>
-      <Card className="p-6 bg-white shadow-md">
+      <Card className="p-6 mt-16 bg-white shadow-md">
+        <div>
+          <h2 className="text-lg m-auto font-semibold text-center">Login</h2>
+        </div>
         {success && (
           <div className="text-center text-green-600 mb-4">
             <p>Login successful! Redirecting...</p>
@@ -114,10 +118,26 @@ const LoginForm = () => {
 
           {error && <div className="mt-2 text-red-600 text-sm">{error}</div>}
 
-          <Button type="submit" className="w-full mt-4" disabled={loading}>
+          <Button
+            type="submit"
+            className="w-full mt-4 bg-blue-600 hover:bg-blue-500 cursor-pointer"
+            disabled={loading}
+          >
             {loading ? <Loader2 className="animate-spin mr-2" /> : "Login"}
-            {loading ? "Logging in..." : "Login"}
           </Button>
+
+          {/* Link to the Sign Up page */}
+          <div className="mt-4 text-center">
+            <p className="text-sm">
+              Don't have an account?{" "}
+              <Link
+                to="/SignUp"
+                className="text-blue-600 hover:text-blue-800 transition duration-200 ease-in-out"
+              >
+                Sign Up
+              </Link>
+            </p>
+          </div>
         </form>
       </Card>
     </div>
