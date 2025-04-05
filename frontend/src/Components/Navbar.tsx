@@ -31,6 +31,7 @@ const Navbar = () => {
         </Link>
         {/* <Link
           to="/SignUp"
+          onClick={() => console.log("Navigating to sign up")}
           className="text-lg hover:text-blue-400 transition duration-200 ease-in-out"
         >
           SignUp

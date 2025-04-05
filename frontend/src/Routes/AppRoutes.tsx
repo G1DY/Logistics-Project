@@ -22,7 +22,7 @@ const AppRoutes = () => (
         {/* Protected Routes wrapped in ProtectedRoute */}
         <Route element={<ProtectedRoute />}>
           <Route path="/Dashboard" element={<Dashboard />} />
-          <Route path="/DriversList" element={<DriversList />} />
+          <Route path="/drivers" element={<DriversList />} />
           <Route
             path="/TruckRegistrationForm"
             element={<TruckRegistrationForm />}
