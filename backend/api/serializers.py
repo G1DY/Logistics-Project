@@ -5,6 +5,8 @@ from .models import Truck, Driver, Trip, DriverLog
 # Truck Serializer
 class TruckSerializer(serializers.ModelSerializer):
     driver_id = serializers.IntegerField(write_only=True, required=False)  # optional driver input
+    from .serializers import DriverSerializer
+    assigned_driver = DriverSerializer(read_only=True)
 
     class Meta:
         model = Truck
