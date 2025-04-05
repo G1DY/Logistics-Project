@@ -9,9 +9,10 @@ class DriverSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Driver
-        fields = ['id', 'name', 'phone_number', 'email', 'assigned_truck']
+        fields = ['id', 'name', 'phone_number', 'email', 'assigned_truck', "password"]
 
     def create(self, validated_data):
+        
         driver = Driver.objects.create(**validated_data)
         driver.set_password(validated_data['password'])  # Hash password
         driver.save()
