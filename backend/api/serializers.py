@@ -2,15 +2,29 @@ from rest_framework import serializers # type: ignore
 from .models import Truck, Driver, Trip, DriverLog
 
 
+# Driver Serializer
+class DriverSerializer(serializers.ModelSerializer):
+    # Full truck details on the driver
+    assigned_truck = serializers.StringRelatedField(read_only=True)  # Nest full truck details
+
+    class Meta:
+        model = Driver
+        fields = ['id', 'name', 'phone_number', 'email', 'assigned_truck']
+
+    def create(self, validated_data):
+        driver = Driver.objects.create(**validated_data)
+        driver.set_password(validated_data['password'])  # Hash password
+        driver.save()
+        return driver
+
 # Truck Serializer
 class TruckSerializer(serializers.ModelSerializer):
     driver_id = serializers.IntegerField(write_only=True, required=False)  # optional driver input
-    from .serializers import DriverSerializer
-    assigned_driver = DriverSerializer(read_only=True)
+    assigned_driver = DriverSerializer(read_only=True)  # Serialize full driver details
 
     class Meta:
         model = Truck
-        fields = ['id', 'license_plate', 'model', 'capacity', 'status', 'driver_id']
+        fields = ['id', 'license_plate', 'model', 'capacity', 'status', 'driver_id', 'assigned_driver']
 
     def create(self, validated_data):
         driver = None
@@ -35,24 +49,7 @@ class TruckSerializer(serializers.ModelSerializer):
 
         truck = Truck.objects.create(**validated_data, assigned_driver=driver)
         return truck
-
-
-# Driver Serializer
-class DriverSerializer(serializers.ModelSerializer):
-    assigned_truck = TruckSerializer(read_only=True)  # Nesting Truck serializer
-
-    class Meta:
-        model = Driver
-        fields = ['id', 'name', 'phone_number', 'email', "password", 'assigned_truck']
-        extra_kwargs = {'password': {'write_only': True}} #hides passwword in response
-
-    def create(self, validated_data):
-        driver = Driver.objects.create(**validated_data)
-        driver.set_password(validated_data['password'])  # Hash password
-        driver.save()
-        return driver
-
-
+    
 # Driver Log Serializer
 class DriverLogSerializer(serializers.ModelSerializer):
     driver = DriverSerializer(read_only=True)  # Nested Driver serializer
