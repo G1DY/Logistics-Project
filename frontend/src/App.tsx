@@ -1,14 +1,14 @@
-import { BrowserRouter as Router } from "react-router-dom";
-import Layout from "./Components/Layout";
+import { AuthProvider } from "./Context/AuthContext";
 import AppRoutes from "./Routes/AppRoutes";
+import { BrowserRouter } from "react-router-dom";
 
 const App = () => {
   return (
-    <Router>
-      <Layout>
-        <AppRoutes /> {/* Routes are now inside BrowserRouter */}
-      </Layout>
-    </Router>
+    <BrowserRouter>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </BrowserRouter>
   );
 };
 

@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Button, Input, Card } from "../Components/ui"; // Importing ShadCN UI components
+import { Button, Input, Card } from "../Components/ui";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { Loader2 } from "lucide-react"; // Importing a spinner from lucide-react
+import { Loader2 } from "lucide-react";
+import { useAuth } from "../Context/AuthContext"; // Importing useAuth
 
 interface formData {
   name: string;
@@ -10,21 +11,22 @@ interface formData {
 }
 
 const LoginForm = () => {
+  const { login } = useAuth(); // Get login function from context
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-    reset, // Added for resetting form on success
+    reset,
   } = useForm<formData>();
-
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false); // Added for success state
 
   const onSubmit: SubmitHandler<formData> = async (data) => {
     setLoading(true);
     setError(null);
-    setSuccess(false); // Reset success state when trying to login again
+    setSuccess(false);
 
     try {
       const response = await fetch("http://127.0.0.1:8000/login/", {
@@ -37,15 +39,12 @@ const LoginForm = () => {
 
       if (response.ok) {
         const responseData = await response.json();
-        localStorage.setItem("access_token", responseData.access);
-        localStorage.setItem("refresh_token", responseData.refresh);
+        login(responseData.access); // Update the auth state
 
-        // Reset form values after successful login
         reset();
-
-        setSuccess(true); // Set success to true
+        setSuccess(true);
         setTimeout(() => {
-          window.location.href = "/dashboard"; // Redirect to the dashboard
+          window.location.href = "/dashboard"; // Redirect to dashboard
         }, 1500);
       } else {
         const errorData = await response.json();
@@ -62,7 +61,6 @@ const LoginForm = () => {
     <div className="max-w-md mx-auto mt-10">
       <h2 className="text-2xl font-semibold text-center mb-6">Login</h2>
       <Card className="p-6 bg-white shadow-md">
-        {/* Display success message after login */}
         {success && (
           <div className="text-center text-green-600 mb-4">
             <p>Login successful! Redirecting...</p>
@@ -116,22 +114,8 @@ const LoginForm = () => {
 
           {error && <div className="mt-2 text-red-600 text-sm">{error}</div>}
 
-          {/* Forgot Password Link */}
-          <div className="text-sm text-right">
-            <a
-              href="/forgot-password"
-              className="text-blue-600 hover:underline"
-            >
-              Forgot Password?
-            </a>
-          </div>
-
           <Button type="submit" className="w-full mt-4" disabled={loading}>
-            {loading ? (
-              <Loader2 className="animate-spin mr-2" /> // Show spinner during loading
-            ) : (
-              "Login"
-            )}
+            {loading ? <Loader2 className="animate-spin mr-2" /> : "Login"}
             {loading ? "Logging in..." : "Login"}
           </Button>
         </form>

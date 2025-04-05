@@ -1,12 +1,9 @@
 import { ReactNode } from "react";
-import Sidebar from "./Sidebar"; // Import Sidebar component
+import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
+import { Outlet } from "react-router-dom"; // Import Outlet for rendering nested routes
 
-interface LayoutProps {
-  children: ReactNode;
-}
-
-const Layout = ({ children }: LayoutProps) => {
+const Layout = () => {
   return (
     <div className="flex min-h-screen">
       {/* Sidebar */}
@@ -15,9 +12,7 @@ const Layout = ({ children }: LayoutProps) => {
       </aside>
 
       <div className="flex-1 flex flex-col ml-64">
-        {" "}
         {/* Offset content by sidebar width */}
-        {/* Fixed Navbar */}
         <header className="fixed top-0 left-0 w-full bg-gray-900 text-white p-4 flex flex-col items-center border-b border-gray-700 shadow-md z-30">
           {/* Top Section */}
           <div className="flex justify-between w-auto max-w-6xl px-4">
@@ -35,12 +30,13 @@ const Layout = ({ children }: LayoutProps) => {
           {/* Navigation Links */}
           <Navbar />
         </header>
-        {/* Push Content Down */}
-        <div className="mt-24">
-          {/* Ensures main content is not hidden under navbar */}
-        </div>
+
         {/* Main Content */}
-        <main className="flex-1 p-4">{children}</main>
+        <main className="flex-1 p-4">
+          <Outlet />{" "}
+          {/* Render the nested route components (protected routes) here */}
+        </main>
+
         {/* Footer */}
         <footer className="bg-gray-800 text-white p-4 w-full mt-auto text-center h-20 flex items-center justify-center ">
           <p>&copy; {new Date().getFullYear()} Driver's Log System</p>

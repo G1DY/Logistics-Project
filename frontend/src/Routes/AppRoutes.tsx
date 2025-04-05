@@ -7,58 +7,35 @@ import DriversDailyLog from "../Pages/DriversDailyLog";
 import Dashboard from "../Pages/Dashboard";
 import DriversList from "../Pages/DriversList";
 import ProtectedRoute from "../Components/ProtectedRoute";
+import ErrorBoundary from "../Components/ErrorBoundary"; // import your ErrorBoundary component
+import Layout from "../Components/Layout";
 
 const AppRoutes = () => (
-  <Routes>
-    {/* Public routes */}
-    <Route path="/Signup" element={<SignUp />} />
-    <Route path="/Login" element={<Login />} />
+  <ErrorBoundary>
+    <Routes>
+      {/* Wrap all routes inside Layout */}
+      <Route element={<Layout />}>
+        {/* Public Routes */}
+        <Route path="/Signup" element={<SignUp />} />
+        <Route path="/Login" element={<Login />} />
 
-    {/* Protected routes */}
-    <Route
-      path="/DriversDailyLog"
-      element={
-        <ProtectedRoute>
-          <DriversDailyLog />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/TruckRegistrationForm"
-      element={
-        <ProtectedRoute>
-          <TruckRegistrationForm />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/TripDetailsForm"
-      element={
-        <ProtectedRoute>
-          <TripDetailsForm />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/dashboard"
-      element={
-        <ProtectedRoute>
-          <Dashboard />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/drivers"
-      element={
-        <ProtectedRoute>
-          <DriversList />
-        </ProtectedRoute>
-      }
-    />
+        {/* Protected Routes wrapped in ProtectedRoute */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/Dashboard" element={<Dashboard />} />
+          <Route path="/DriversList" element={<DriversList />} />
+          <Route
+            path="/TruckRegistrationForm"
+            element={<TruckRegistrationForm />}
+          />
+          <Route path="/TripDetailsForm" element={<TripDetailsForm />} />
+          <Route path="/DriversDailyLog" element={<DriversDailyLog />} />
+        </Route>
 
-    {/* Fallback */}
-    <Route path="*" element={<h1>404 Not Found</h1>} />
-  </Routes>
+        {/* 404 Route */}
+        <Route path="*" element={<h1>404 Not Found</h1>} />
+      </Route>
+    </Routes>
+  </ErrorBoundary>
 );
 
 export default AppRoutes;
