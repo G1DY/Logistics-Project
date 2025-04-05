@@ -55,7 +55,7 @@ const TruckRegistrationForm = () => {
       model: model.trim(),
       capacity: parseFloat(String(capacity)),
       status,
-      assigned_driver: driverId,
+      driver_id: driverId,
     };
 
     setIsSubmitting(true);
