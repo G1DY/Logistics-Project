@@ -4,3 +4,4 @@ export { Card } from "./card";
 export { ScrollArea } from "./scroll-area";
 export { Label } from "./label";
 export { Form } from "./form";
+export { Badge } from "./badge";

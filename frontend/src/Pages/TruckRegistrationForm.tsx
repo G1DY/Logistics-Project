@@ -7,82 +7,128 @@ import { Button } from "../Components/ui/button";
 const TruckRegistrationForm = () => {
   const [licensePlate, setLicensePlate] = useState("");
   const [model, setModel] = useState("");
-  const [capacity, setCapacity] = useState(0);
+  const [capacity, setCapacity] = useState<number | "">("");
   const [status, setStatus] = useState("active");
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const resetForm = () => {
+    setLicensePlate("");
+    setModel("");
+    setCapacity("");
+    setStatus("active");
+  };
+
   const handleSubmit = async () => {
-    if (!licensePlate || !model || !capacity) {
-      setMessage("Please fill in all fields.");
+    if (
+      !licensePlate.trim() ||
+      !model.trim() ||
+      capacity === "" ||
+      isNaN(Number(capacity)) ||
+      Number(capacity) <= 0
+    ) {
+      setMessage({
+        type: "error",
+        text: "Please fill in all fields with valid values.",
+      });
       return;
     }
 
     const newTruck = {
-      license_plate: licensePlate,
-      model,
-      capacity,
+      license_plate: licensePlate.trim(),
+      model: model.trim(),
+      capacity: parseFloat(String(capacity)),
       status,
     };
 
     setIsSubmitting(true);
+    setMessage(null);
 
     try {
+      // const token = localStorage.getItem("accessToken"); // optional auth token
       const response = await axios.post(
         "http://127.0.0.1:8000/trucks/",
-        newTruck
+        newTruck,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            // Uncomment below if token is needed
+            // Authorization: `Bearer ${token}`,
+          },
+        }
       );
+
       if (response.status === 201) {
-        setMessage("Truck registered successfully!");
+        setMessage({
+          type: "success",
+          text: "✅ Truck registered successfully!",
+        });
+        resetForm();
       }
-    } catch (error) {
-      setMessage("Error registering truck. Please try again.");
+    } catch (error: any) {
+      console.error("API error:", error);
+      const errorText =
+        error?.response?.data?.detail ||
+        "❌ Error registering truck. Please try again.";
+      setMessage({ type: "error", text: errorText });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Card className="w-full max-w-3xl mx-auto p-4 shadow-lg border border-gray-700">
+    <Card className="w-full max-w-3xl mx-auto p-6 shadow-xl border border-gray-700">
       <CardContent>
-        <h2 className="text-lg font-semibold mb-4">Truck Registration</h2>
+        <h2 className="text-xl font-bold mb-6 text-white">
+          Truck Registration
+        </h2>
         <div className="space-y-4">
           <Input
             value={licensePlate}
             onChange={(e) => setLicensePlate(e.target.value)}
             placeholder="License Plate"
-            className="border border-gray-500 bg-gray-800 text-gray-500"
+            className="border border-gray-600 bg-gray-900 text-white"
           />
           <Input
             value={model}
             onChange={(e) => setModel(e.target.value)}
             placeholder="Truck Model"
-            className="border border-gray-500 bg-gray-800 text-gray-500"
+            className="border border-gray-600 bg-gray-900 text-white"
           />
           <Input
             type="number"
             value={capacity}
             onChange={(e) => setCapacity(Number(e.target.value))}
-            placeholder="Truck Capacity"
-            className="border border-gray-500 bg-gray-800 text-gray-500"
+            placeholder="Truck Capacity (tons)"
+            className="border border-gray-600 bg-gray-900 text-white"
           />
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="border border-gray-500 bg-gray-800 text-gray-500"
+            className="border border-gray-600 bg-gray-900 text-white rounded px-4 py-2"
           >
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
           </select>
-          <br />
           <Button
             onClick={handleSubmit}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            className="bg-blue-600 hover:bg-blue-700 text-white w-full"
             disabled={isSubmitting}
           >
             {isSubmitting ? "Submitting..." : "Register Truck"}
           </Button>
-          {message && <p className="text-sm text-gray-700 mt-4">{message}</p>}
+          {message && (
+            <p
+              className={`text-sm mt-4 ${
+                message.type === "success" ? "text-green-400" : "text-red-400"
+              }`}
+            >
+              {message.text}
+            </p>
+          )}
         </div>
       </CardContent>
     </Card>
