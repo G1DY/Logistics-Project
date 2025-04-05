@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { TruckIcon, UserIcon } from "lucide-react"; // Add any icons you need
 
 const Sidebar = () => {
@@ -9,21 +10,21 @@ const Sidebar = () => {
 
       {/* Navigation Links */}
       <div className="space-y-4">
-        <Link
+        <NavLink
           to="/dashboard"
           className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded"
         >
           <TruckIcon className="w-5 h-5" />
           <span>Dashboard</span>
-        </Link>
+        </NavLink>
 
-        <Link
+        <NavLink
           to="/drivers"
           className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded"
         >
           <UserIcon className="w-5 h-5" />
           <span>Drivers</span>
-        </Link>
+        </NavLink>
 
         {/* Add more sidebar links here */}
       </div>
