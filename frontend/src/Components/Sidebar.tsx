@@ -22,7 +22,7 @@ const Sidebar = () => {
           className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded"
         >
           <UserIcon className="w-5 h-5" />
-          <span>Drivers</span>
+          <span>DriversList</span>
         </NavLink>
 
         {/* Add more sidebar links here */}

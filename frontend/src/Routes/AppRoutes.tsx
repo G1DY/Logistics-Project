@@ -5,6 +5,7 @@ import Login from "../Pages/Login";
 import TripDetailsForm from "../Pages/TripDetailsForm";
 import DriversDailyLog from "../Pages/DriversDailyLog";
 import Dashboard from "../Pages/Dashboard";
+import DriversList from "../Pages/DriversList";
 
 const AppRoutes = () => (
   <Routes>
@@ -14,6 +15,7 @@ const AppRoutes = () => (
     <Route path="/Signup" element={<SignUp />} />
     <Route path="/Login" element={<Login />} />
     <Route path="/dashboard" element={<Dashboard />} />
+    <Route path="/drivers" element={<DriversList />} />
     <Route path="*" element={<h1>404 Not Found</h1>} />
   </Routes>
 );
