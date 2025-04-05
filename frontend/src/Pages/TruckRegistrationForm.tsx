@@ -3,8 +3,13 @@ import axios from "axios";
 import { Card, CardContent } from "../Components/ui/card";
 import { Input } from "../Components/ui/input";
 import { Button } from "../Components/ui/button";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const TruckRegistrationForm = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const driverId = location.state?.driverId;
+
   const [licensePlate, setLicensePlate] = useState("");
   const [model, setModel] = useState("");
   const [capacity, setCapacity] = useState<number | "">("");
@@ -37,26 +42,32 @@ const TruckRegistrationForm = () => {
       return;
     }
 
+    if (!driverId) {
+      setMessage({
+        type: "error",
+        text: "Missing driver ID. Please register driver first.",
+      });
+      return;
+    }
+
     const newTruck = {
       license_plate: licensePlate.trim(),
       model: model.trim(),
       capacity: parseFloat(String(capacity)),
       status,
+      assigned_driver: driverId,
     };
 
     setIsSubmitting(true);
     setMessage(null);
 
     try {
-      // const token = localStorage.getItem("accessToken"); // optional auth token
       const response = await axios.post(
         "http://127.0.0.1:8000/trucks/",
         newTruck,
         {
           headers: {
             "Content-Type": "application/json",
-            // Uncomment below if token is needed
-            // Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -64,9 +75,12 @@ const TruckRegistrationForm = () => {
       if (response.status === 201) {
         setMessage({
           type: "success",
-          text: "✅ Truck registered successfully!",
+          text: "✅ Truck registered and assigned to driver!",
         });
         resetForm();
+
+        // Optional: redirect to dashboard
+        setTimeout(() => navigate("/dashboard"), 2000);
       }
     } catch (error: any) {
       console.error("API error:", error);

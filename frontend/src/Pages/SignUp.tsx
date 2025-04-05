@@ -4,7 +4,7 @@ import { Card, CardContent } from "../Components/ui/card";
 import { Input } from "../Components/ui/input";
 import { Button } from "../Components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Loader2 } from "lucide-react"; // Importing spinner from lucide-react
+import { Loader2 } from "lucide-react";
 
 const DriverSignUp = () => {
   const [name, setName] = useState("");
@@ -18,7 +18,6 @@ const DriverSignUp = () => {
   const navigate = useNavigate();
 
   const validateForm = () => {
-    // Simple client-side validation
     if (!name || !phoneNumber || !email || !password || !confirmPassword) {
       setMessage("Please fill in all fields.");
       return false;
@@ -29,14 +28,12 @@ const DriverSignUp = () => {
       return false;
     }
 
-    // Basic phone number validation (could be improved)
     const phoneRegex = /^[0-9]{10}$/;
     if (!phoneRegex.test(phoneNumber)) {
       setMessage("Invalid phone number. Must be 10 digits.");
       return false;
     }
 
-    // Simple email validation
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
       setMessage("Invalid email address.");
@@ -52,25 +49,28 @@ const DriverSignUp = () => {
     const newDriver = { name, phone_number: phoneNumber, email, password };
 
     setIsSubmitting(true);
-    setMessage(""); // Clear previous message
+    setMessage("");
 
     try {
-      // const token = localStorage.getItem("access_token");
       const response = await axios.post(
         "http://127.0.0.1:8000/drivers/",
         newDriver,
         {
           headers: {
             "Content-Type": "application/json",
-            // Authorization: token ? `Bearer ${token}` : "",
           },
         }
       );
 
       if (response.status === 201) {
+        const driverId = response.data.id;
         setMessage("Driver registered successfully!");
-        // After successful registration, redirect to truck registration page
-        setTimeout(() => navigate("/TruckRegistrationForm"), 2000); // Delay for success message display
+
+        setTimeout(() => {
+          navigate("/TruckRegistrationForm", {
+            state: { driverId },
+          });
+        }, 2000);
       }
     } catch (error: any) {
       console.error("API error:", error.response?.data);
@@ -85,40 +85,42 @@ const DriverSignUp = () => {
   return (
     <Card className="w-full max-w-3xl mx-auto p-4 shadow-lg border border-gray-700">
       <CardContent>
-        <h2 className="text-lg font-semibold mb-4">Driver Registration</h2>
+        <h2 className="text-lg font-semibold mb-4 text-white">
+          Driver Registration
+        </h2>
         <div className="space-y-4">
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Driver Name"
-            className="border border-gray-500 bg-gray-800 text-gray-500"
+            className="border border-gray-500 bg-gray-800 text-white"
           />
           <Input
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
             placeholder="Phone Number"
-            className="border border-gray-500 bg-gray-800 text-gray-500"
+            className="border border-gray-500 bg-gray-800 text-white"
           />
           <Input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
-            className="border border-gray-500 bg-gray-800 text-gray-500"
+            className="border border-gray-500 bg-gray-800 text-white"
           />
           <Input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            className="border border-gray-500 bg-gray-800 text-gray-500"
+            className="border border-gray-500 bg-gray-800 text-white"
           />
           <Input
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="Confirm Password"
-            className="border border-gray-500 bg-gray-800 text-gray-500"
+            className="border border-gray-500 bg-gray-800 text-white"
           />
           <Button
             onClick={handleSubmit}
@@ -126,17 +128,18 @@ const DriverSignUp = () => {
             disabled={isSubmitting}
           >
             {isSubmitting ? (
-              <Loader2 className="animate-spin mr-2" />
+              <>
+                <Loader2 className="animate-spin mr-2" /> Submitting...
+              </>
             ) : (
               "Register Driver"
             )}
-            {isSubmitting ? "Submitting..." : "Register Driver"}
           </Button>
 
           {message && (
             <p
               className={`text-sm mt-4 ${
-                message.includes("Error") ? "text-red-600" : "text-green-600"
+                message.includes("Error") ? "text-red-500" : "text-green-500"
               }`}
             >
               {message}
