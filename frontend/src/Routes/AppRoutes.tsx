@@ -6,16 +6,57 @@ import TripDetailsForm from "../Pages/TripDetailsForm";
 import DriversDailyLog from "../Pages/DriversDailyLog";
 import Dashboard from "../Pages/Dashboard";
 import DriversList from "../Pages/DriversList";
+import ProtectedRoute from "../Components/ProtectedRoute";
 
 const AppRoutes = () => (
   <Routes>
-    <Route path="/DriversDailyLog" element={<DriversDailyLog />} />
-    <Route path="/TruckRegistrationForm" element={<TruckRegistrationForm />} />
-    <Route path="/TripDetailsForm" element={<TripDetailsForm />} />
+    {/* Public routes */}
     <Route path="/Signup" element={<SignUp />} />
     <Route path="/Login" element={<Login />} />
-    <Route path="/dashboard" element={<Dashboard />} />
-    <Route path="/drivers" element={<DriversList />} />
+
+    {/* Protected routes */}
+    <Route
+      path="/DriversDailyLog"
+      element={
+        <ProtectedRoute>
+          <DriversDailyLog />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/TruckRegistrationForm"
+      element={
+        <ProtectedRoute>
+          <TruckRegistrationForm />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/TripDetailsForm"
+      element={
+        <ProtectedRoute>
+          <TripDetailsForm />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/dashboard"
+      element={
+        <ProtectedRoute>
+          <Dashboard />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/drivers"
+      element={
+        <ProtectedRoute>
+          <DriversList />
+        </ProtectedRoute>
+      }
+    />
+
+    {/* Fallback */}
     <Route path="*" element={<h1>404 Not Found</h1>} />
   </Routes>
 );
