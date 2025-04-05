@@ -4,9 +4,35 @@ from .models import Truck, Driver, Trip, DriverLog
 
 # Truck Serializer
 class TruckSerializer(serializers.ModelSerializer):
+    driver_id = serializers.IntegerField(write_only=True, required=False)  # optional driver input
+
     class Meta:
         model = Truck
-        fields = ['id', 'license_plate', 'model', 'capacity', 'status']
+        fields = ['id', 'license_plate', 'model', 'capacity', 'status', 'driver_id']
+
+    def create(self, validated_data):
+        driver = None
+
+        # Pop driver_id if it exists in validated_data
+        driver_id = validated_data.pop("driver_id", None)
+
+        # Try getting driver from authenticated user
+        request = self.context.get('request')
+        if request and request.user and request.user.is_authenticated:
+            driver = request.user
+        elif driver_id:
+            driver = Driver.objects.filter(id=driver_id).first()
+
+        # Ensure driver exists
+        if not driver:
+            raise serializers.ValidationError("Driver could not be determined.")
+
+        # Check if this driver already has a truck
+        if Truck.objects.filter(assigned_driver=driver).exists():
+            raise serializers.ValidationError("This driver is already assigned to a truck.")
+
+        truck = Truck.objects.create(**validated_data, assigned_driver=driver)
+        return truck
 
 
 # Driver Serializer

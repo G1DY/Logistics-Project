@@ -9,12 +9,12 @@ class TruckStatus(models.TextChoices):
 
 class Truck(models.Model):
     license_plate = models.CharField(max_length=15, unique=True, db_index=True)
-    assigned_driver = models.ForeignKey(
+    assigned_driver = models.OneToOneField(
     "Driver",
     on_delete=models.SET_NULL,
     null=True,
     blank=True,
-    related_name="trucks"
+    related_name="assigned_truck"
 )
     model = models.CharField(max_length=50)
     capacity = models.FloatField(help_text="Capacity in tons")
@@ -49,7 +49,6 @@ class Driver(AbstractBaseUser):
     name = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=15, unique=True)
     email = models.EmailField(unique=True, db_index=True)
-    assigned_truck = models.OneToOneField('Truck', on_delete=models.SET_NULL, null=True, blank=True)
 
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)  # Required for Django admin access
