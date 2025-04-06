@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Button, Input, Card } from "../Components/ui";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { Link, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../Context/AuthContext"; // Importing useAuth
 import { useNavigate } from "react-router-dom";
 
