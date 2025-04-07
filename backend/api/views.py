@@ -21,6 +21,8 @@ from rest_framework.response import Response # type: ignore
 import logging
 from rest_framework import status, permissions # type: ignore
 from rest_framework.permissions import AllowAny # type: ignore
+from rest_framework.permissions import IsAuthenticated # type: ignore
+from rest_framework.decorators import permission_classes # type: ignore
 
 
 class DriverLoginView(APIView):
@@ -52,6 +54,7 @@ class DriverLoginView(APIView):
 
 #--------------route map------------#
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def calculate_route(request):
     try:
         if not request.body:
