@@ -36,12 +36,12 @@ const Navbar = () => {
         >
           SignUp
         </Link> */}
-        <Link
+        {/* <Link
           to="/TruckRegistrationForm"
           className="text-lg hover:text-blue-400 transition duration-200 ease-in-out"
         >
           TrucksForm
-        </Link>
+        </Link> */}
         {/* <Link
           to="/Login"
           className="text-lg hover:text-blue-400 transition duration-200 ease-in-out"
