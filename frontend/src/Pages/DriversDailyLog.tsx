@@ -34,10 +34,17 @@ const DriverLogInteractive = () => {
     if (logs.length > 0) setEditedLogs({}); // Reset edits when new logs are fetched
   }, [logs]);
 
+  const token = localStorage.getItem("access_token");
+
   const fetchLogs = async () => {
     try {
       const response = await axios.get(
-        `http://127.0.0.1:8000/logs/${driverId}/`
+        `http://127.0.0.1:8000/driver-logs/${driverId}/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       setLogs(response.data);
       if (response.data.length === 0) setMessage("No logs found.");
