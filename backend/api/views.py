@@ -123,6 +123,7 @@ def calculate_route(request):
 #--------------driverLogs-----------------#
     
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def log_driver_activity(request):
     """
     Logs driver activity including stops, rest, fueling, and total driving hours.
@@ -142,6 +143,7 @@ def log_driver_activity(request):
     return Response(serializer.errors, status=400)
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_driver_activity(request, driver_id):
     """
     Fetches total driving hours in the last 8 days and last trip details.
@@ -169,6 +171,7 @@ def get_driver_activity(request, driver_id):
     return Response(log_details, status=200)
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_driver_logs(request, driver_id):
     """
     Fetches all logs for a given driver.
