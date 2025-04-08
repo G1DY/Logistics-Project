@@ -28,11 +28,6 @@ const AppRoutes = () => (
         <Route element={<ProtectedRoute />}>
           <Route path="/Dashboard" element={<Dashboard />} />
           <Route path="/drivers" element={<DriversList />} />
-          <Route
-            path="/TruckRegistrationForm"
-            element={<TruckRegistrationForm />}
-          />
-          <Route path="/TripDetailsForm" element={<TripDetailsForm />} />
           <Route path="/DriversDailyLog" element={<DriversDailyLog />} />
         </Route>
 

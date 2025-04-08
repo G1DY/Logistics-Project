@@ -76,7 +76,7 @@ const DriverSignUp = () => {
           navigate("/TruckRegistrationForm", {
             state: { driverId, token },
           });
-        }, 3000);
+        }, 6000);
       } else {
         // Handle unexpected status codes
         setMessage(`Unexpected response: ${response.status}`);

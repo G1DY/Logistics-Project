@@ -119,6 +119,7 @@ const RouteMap = ({ pickup, dropoff }: RouteMapProps) => {
           },
         }
       );
+      console.log("Backend Response:", response);
 
       const routeData = response.data;
       if (!routeData.route) throw new Error("Route data is empty.");
