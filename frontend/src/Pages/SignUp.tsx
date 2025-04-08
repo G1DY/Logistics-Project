@@ -63,9 +63,12 @@ const DriverSignUp = () => {
       );
 
       if (response.status === 201) {
-        const driverId = response.data.id;
+        const driverId = response.data.driver?.id;
         const token = response.data.token;
+
+        localStorage.setItem("driverId", driverId);
         localStorage.setItem("token", token); // Storing the token in localStorage
+
         setMessage("Driver registered successfully!");
 
         setTimeout(() => {
@@ -73,7 +76,7 @@ const DriverSignUp = () => {
           navigate("/TruckRegistrationForm", {
             state: { driverId, token },
           });
-        }, 2000);
+        }, 3000);
       } else {
         // Handle unexpected status codes
         setMessage(`Unexpected response: ${response.status}`);
