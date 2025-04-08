@@ -50,7 +50,7 @@ class DriverLoginView(APIView):
 
         if driver is not None:
             # Login successful, return token
-            from rest_framework_simplejwt.tokens import RefreshToken # type: ignore
+            print(f"Logged-in driver: {driver.email}") 
             refresh = RefreshToken.for_user(driver)
             return Response({
                 'refresh': str(refresh),
@@ -65,6 +65,8 @@ class DriverLoginView(APIView):
 @permission_classes([IsAuthenticated])
 def calculate_route(request):
     try:
+        # Debugging: Check if Authorization header exists and token is valid
+        print(f"Authorization Header: {request.headers.get('Authorization')}")
         if not request.body:
             return Response({"error": "Empty request body"}, status=400)
 
@@ -137,6 +139,9 @@ def log_driver_activity(request):
     Logs driver activity including stops, rest, fueling, and total driving hours.
     """
     driver_id = request.data.get("driver_id")
+
+    # Debugging: Check if driver exists and print the received data
+    print(f"Received data: {json.dumps(request.data, indent=2)}")
     
     # Check if the driver exists
     if not Driver.objects.filter(id=driver_id).exists():
