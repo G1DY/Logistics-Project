@@ -102,21 +102,21 @@ const RouteMap = ({ pickup, dropoff }: RouteMapProps) => {
         truck_id: truckId,
       };
       // Get the Bearer token from localStorage
-      // const token = localStorage.getItem("access_token");
-      // if (!token) {
-      //   console.error("No token found in localStorage.");
-      //   setError("Authentication token not found.");
-      //   setLoading(false);
-      //   return;
-      // }
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found in localStorage.");
+        setError("Authentication token not found.");
+        setLoading(false);
+        return;
+      }
 
       const response = await axios.post(
         "http://127.0.0.1:8000/calculate_route/",
         payload,
         {
-          // headers: {
-          //   Authorization: `Bearer ${token}`, // Include the token here
-          // },
+          headers: {
+            Authorization: `Bearer ${token}`, // Include the token here
+          },
         }
       );
 
