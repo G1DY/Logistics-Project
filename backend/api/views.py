@@ -23,7 +23,15 @@ from rest_framework import status, permissions # type: ignore
 from rest_framework.permissions import AllowAny # type: ignore
 from rest_framework.permissions import IsAuthenticated # type: ignore
 from rest_framework.decorators import permission_classes # type: ignore
+from rest_framework_simplejwt.tokens import RefreshToken # type: ignore
 
+
+def get_tokens_for_user(driver):
+    refresh = RefreshToken.for_user(driver)
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
 
 class DriverLoginView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -227,8 +235,14 @@ class DriverViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            driver = serializer.save()
+            tokens = get_tokens_for_user(driver)
+
+            return Response({
+                "message": "Driver registered successfully.",
+                "driver": serializer.data,
+                "token": tokens["access"]  # Just send access token
+            }, status=status.HTTP_201_CREATED)
         
         print("Validation errors:", serializer.errors)  # Debugging
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
