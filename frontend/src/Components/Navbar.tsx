@@ -29,25 +29,6 @@ const Navbar = () => {
         >
           TripMap
         </Link>
-        {/* <Link
-          to="/SignUp"
-          onClick={() => console.log("Navigating to sign up")}
-          className="text-lg hover:text-blue-400 transition duration-200 ease-in-out"
-        >
-          SignUp
-        </Link> */}
-        {/* <Link
-          to="/TruckRegistrationForm"
-          className="text-lg hover:text-blue-400 transition duration-200 ease-in-out"
-        >
-          TrucksForm
-        </Link> */}
-        {/* <Link
-          to="/Login"
-          className="text-lg hover:text-blue-400 transition duration-200 ease-in-out"
-        >
-          Login
-        </Link> */}
       </div>
 
       {/* Mobile Hamburger Menu */}

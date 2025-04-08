@@ -12,14 +12,16 @@ import "leaflet/dist/leaflet.css";
 import { getCoordinates } from "../lib/geocode";
 import axios from "axios";
 import L from "leaflet";
-import { Card, CardContent } from "../Components/ui/card"; // ShadCN UI
-import { ScrollArea } from "../Components/ui/scroll-area"; // For smooth scrolling
-import { Loader2 } from "lucide-react"; // For loading state
+import { Card, CardContent } from "../Components/ui/card";
+import { ScrollArea } from "../Components/ui/scroll-area";
+import { Loader2 } from "lucide-react";
+import { useLocation } from "react-router-dom"; // Importing useLocation for route params
 
 interface RouteMapProps {
   pickup: string;
   dropoff: string;
 }
+
 interface Instruction {
   instruction: string;
   distance?: number;
@@ -27,15 +29,9 @@ interface Instruction {
 }
 
 const formatInstruction = (step: string | Instruction, index: number) => {
-  // If the step is a string, return it directly
-  if (typeof step === "string") {
-    return `${index + 1}. ${step}`;
-  }
-
-  // If it's an object, ensure the instruction exists
-  if (!step || typeof step.instruction !== "string") {
+  if (typeof step === "string") return `${index + 1}. ${step}`;
+  if (!step || typeof step.instruction !== "string")
     return `${index + 1}. No instruction available`;
-  }
 
   const { instruction, distance, name } = step;
   const roadName = name && name.trim() ? name : "Unnamed road";
@@ -49,6 +45,16 @@ const formatInstruction = (step: string | Instruction, index: number) => {
 };
 
 const RouteMap = ({ pickup, dropoff }: RouteMapProps) => {
+  const location = useLocation(); // Get location state, which contains driverId and truckId
+  const driverId = location.state?.driverId; // Extract driverId from location.state
+  const truckId = location.state?.truckId; // Extract truckId from location.state
+  console.log({ driverId, truckId });
+  if (!driverId || !truckId) {
+    return (
+      <p className="text-center text-red-500">Missing driverId or truckId.</p>
+    );
+  }
+
   const [pickupCoords, setPickupCoords] = useState<LatLngTuple | null>(null);
   const [dropoffCoords, setDropoffCoords] = useState<LatLngTuple | null>(null);
   const [route, setRoute] = useState<LatLngTuple[]>([]);
@@ -59,7 +65,14 @@ const RouteMap = ({ pickup, dropoff }: RouteMapProps) => {
   const [loading, setLoading] = useState<boolean>(true);
 
   const fetchCoordinatesAndRoute = useCallback(async () => {
-    if (!pickup || !dropoff) return;
+    if (!pickup || !dropoff || !driverId || !truckId) {
+      console.error(
+        "Missing required parameters: pickup, dropoff, driverId, or truckId."
+      );
+      setError("Missing required parameters.");
+      return;
+    }
+
     setLoading(true);
     setError("");
 
@@ -68,8 +81,12 @@ const RouteMap = ({ pickup, dropoff }: RouteMapProps) => {
         getCoordinates(pickup),
         getCoordinates(dropoff),
       ]);
+      console.log("Pickup:", pickupLatLng);
+      console.log("Dropoff:", dropoffLatLng);
 
       if (!pickupLatLng || !dropoffLatLng) {
+        console.error("Invalid coordinates received.");
+
         throw new Error("Invalid locations. Could not fetch coordinates.");
       }
 
@@ -81,11 +98,26 @@ const RouteMap = ({ pickup, dropoff }: RouteMapProps) => {
         start_lat: pickupLatLng[0],
         end_lng: dropoffLatLng[1],
         end_lat: dropoffLatLng[0],
+        driver_id: driverId,
+        truck_id: truckId,
       };
+      // Get the Bearer token from localStorage
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        console.error("No token found in localStorage.");
+        setError("Authentication token not found.");
+        setLoading(false);
+        return;
+      }
 
       const response = await axios.post(
         "http://127.0.0.1:8000/calculate_route/",
-        payload
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Include the token here
+          },
+        }
       );
 
       const routeData = response.data;
@@ -110,7 +142,7 @@ const RouteMap = ({ pickup, dropoff }: RouteMapProps) => {
     } finally {
       setLoading(false);
     }
-  }, [pickup, dropoff]);
+  }, [pickup, dropoff, driverId, truckId]);
 
   useEffect(() => {
     fetchCoordinatesAndRoute();

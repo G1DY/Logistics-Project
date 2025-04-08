@@ -73,6 +73,7 @@ const TruckRegistrationForm = () => {
       );
 
       if (response.status === 201) {
+        const truckId = response.data.id;
         setMessage({
           type: "success",
           text: "✅ Truck registered and assigned to driver!",
@@ -80,7 +81,9 @@ const TruckRegistrationForm = () => {
         resetForm();
 
         // Optional: redirect to dashboard
-        setTimeout(() => navigate("/dashboard"), 2000);
+        setTimeout(() => {
+          navigate("/TripDetailsForm", { state: { driverId, truckId } });
+        }, 2000);
       }
     } catch (error: any) {
       console.error("API error:", error);

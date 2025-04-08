@@ -22,6 +22,7 @@ const AppRoutes = () => (
           path="/TruckRegistrationForm"
           element={<TruckRegistrationForm />}
         />
+        <Route path="/TripDetailsForm" element={<TripDetailsForm />} />
 
         {/* Protected Routes wrapped in ProtectedRoute */}
         <Route element={<ProtectedRoute />}>
