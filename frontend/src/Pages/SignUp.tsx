@@ -64,19 +64,31 @@ const DriverSignUp = () => {
 
       if (response.status === 201) {
         const driverId = response.data.id;
+        const token = response.data.token;
+        localStorage.setItem("token", token); // Storing the token in localStorage
         setMessage("Driver registered successfully!");
 
         setTimeout(() => {
+          // Passing both driverId and token to the next page
           navigate("/TruckRegistrationForm", {
-            state: { driverId },
+            state: { driverId, token },
           });
         }, 2000);
+      } else {
+        // Handle unexpected status codes
+        setMessage(`Unexpected response: ${response.status}`);
       }
     } catch (error: any) {
       console.error("API error:", error.response?.data);
-      setMessage(
-        JSON.stringify(error.response?.data) || "Error registering driver."
-      );
+      if (error.response?.status === 400) {
+        setMessage("Bad request: Please check the data you provided.");
+      } else if (error.response?.status === 500) {
+        setMessage("Server error: Please try again later.");
+      } else {
+        setMessage(
+          error.response?.data?.message || "Error registering driver."
+        );
+      }
     } finally {
       setIsSubmitting(false);
     }
