@@ -1,0 +1,22 @@
+databases:
+  - name: cruddb
+    plan: free
+    databaseName: crud
+    user: crud
+
+services:
+  - type: web
+    plan: free
+    name: crud
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "python -m gunicorn crud.asgi:application -k uvicorn.workers.UvicornWorker"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cruddb
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
