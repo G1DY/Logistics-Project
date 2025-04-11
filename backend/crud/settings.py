@@ -88,16 +88,12 @@ WSGI_APPLICATION = 'crud.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(
-        # Replace this value with your local database's connection string.
-        default='postgresql://postgres:postgres@localhost:5432/crud',
-        conn_max_age=600
-    ),
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+DATABASES['default'] = dj_database_url.parse('postgresql://logistics_django_project_user:wfpN9vMUkpzieJvz3sWuyhRENuv6tLUj@dpg-cvrpv1s9c44c73d8e0e0-a.oregon-postgres.render.com/logistics_django_project')
 
 
 # Password validation
